@@ -463,7 +463,7 @@
           <h2>土地增值稅</h2>
           <div class="seg" id="onLandMode">
             <button data-v="manual" class="active">自行輸入金額</button>
-            <button data-v="estimate">簡易估算</button>
+            <button data-v="estimate">依土地稅法試算</button>
           </div>
           <div class="stack" style="margin-top:12px;" id="onLandManualWrap">
             <div>
@@ -473,17 +473,34 @@
           </div>
           <div class="stack" style="margin-top:12px; display:none;" id="onLandEstWrap">
             <div>
-              <label for="onLandBase">土地公告現值總漲價數額（查地政系統）</label>
-              <div class="unit-input"><input type="number" id="onLandBase" value="0" min="0" step="1"><span>萬元</span></div>
-            </div>
-            <div>
-              <label>適用稅率</label>
-              <div class="seg" id="onLandRate">
-                <button data-v="10" class="active">自用住宅 10%</button>
-                <button data-v="20">一般稅率 20%起</button>
+              <label>用地類型</label>
+              <div class="seg" id="onLandSelfUse">
+                <button data-v="self" class="active">自用住宅用地 10%</button>
+                <button data-v="general">一般用地（累進稅率）</button>
               </div>
             </div>
-            <div class="cap-note">簡易估算僅抓最低稅率概算，實際依漲價倍數累進課徵，正式金額請洽地政士。</div>
+            <div>
+              <label for="onLandA">土地漲價總數額（查地政系統土地增值稅試算）</label>
+              <div class="unit-input"><input type="number" id="onLandA" value="0" min="0" step="1"><span>萬元</span></div>
+            </div>
+            <div id="onLandGeneralWrap" style="display:none;">
+              <div class="row">
+                <div>
+                  <label for="onLandB">原規定地價／前次移轉現值</label>
+                  <div class="unit-input"><input type="number" id="onLandB" value="0" min="0" step="1"><span>萬元</span></div>
+                </div>
+                <div>
+                  <label for="onLandHoldYears">土地持有年限</label>
+                  <select id="onLandHoldYears">
+                    <option value="20u">20年以下</option>
+                    <option value="20o">超過20年</option>
+                    <option value="30o">超過30年</option>
+                    <option value="40o">超過40年</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="cap-note">依土地稅法第33條（一般用地累進稅率＋長期持有減徵）、第34條（自用住宅用地稅率10%，須符合都市土地3公畝／非都市7公畝內、本人或配偶及直系親屬設籍、無出租營業使用等六項條件，原則一生一次）試算。正式金額以地政機關核發之土地增值稅核定通知書為準。</div>
           </div>
         </div>
 
@@ -506,7 +523,7 @@
               <input type="checkbox" id="onHtghSelf" style="width:18px;height:18px;">
               符合自住優惠（持有滿6年+設籍+無出租營業）
             </label>
-            <div class="cap-note">速查稅率：未滿2年45%／2~5年35%／5~10年20%／滿10年15%；自住優惠：獲利400萬以下免稅、超過部分按10%課徵。僅供概算，正式申報以國稅局試算為準。</div>
+            <div class="cap-note">依所得稅法第14條之4房地合一稅2.0稅率（個人）：持有2年以內45%／逾2年至5年35%／逾5年至10年20%／逾10年15%；自住優惠（設籍持有連續滿6年等六項條件）：課稅所得400萬以下免稅、超過部分按10%課徵。僅供概算，正式申報以國稅局試算為準。</div>
           </div>
         </div>
 
@@ -998,6 +1015,26 @@
     return '<div class="kpi'+(accent?' accent':'')+'"><div class="k-label">'+label+'</div><div class="k-val num">'+val+'</div></div>';
   }
 
+  // 土地稅法第33條累進稅率速算係數：[持有年限級距] -> {t2:[稅率,扣除係數], t3:[稅率,扣除係數]}（第1級一律a*20%）
+  var LAND_TIER_COEF = {
+    '20u': { t2:[30,10], t3:[40,30] },
+    '20o': { t2:[28,8],  t3:[36,24] },
+    '30o': { t2:[27,7],  t3:[34,21] },
+    '40o': { t2:[26,6],  t3:[32,18] }
+  };
+  function computeLandTaxEstimate(){
+    var selfUse = document.querySelector('#onLandSelfUse button.active').dataset.v === 'self';
+    var a = parseFloat($('onLandA').value)||0;
+    if(selfUse) return a * 10 / 100;
+    var b = parseFloat($('onLandB').value)||0;
+    if(b <= 0) return a * 20 / 100;
+    var ratio = a / b;
+    var coef = LAND_TIER_COEF[$('onLandHoldYears').value] || LAND_TIER_COEF['20u'];
+    if(ratio < 1) return a * 20 / 100;
+    if(ratio < 2) return a * coef.t2[0]/100 - b * coef.t2[1]/100;
+    return a * coef.t3[0]/100 - b * coef.t3[1]/100;
+  }
+
   function onCompute(){
     var price = parseFloat($('onPrice').value)||0;
     var loanBal = parseFloat($('onLoanBal').value)||0;
@@ -1006,14 +1043,7 @@
     var paperwork = parseFloat($('onPaperwork').value)||0;
 
     var landMode = document.querySelector('#onLandMode button.active').dataset.v;
-    var landTax = 0;
-    if(landMode === 'manual'){
-      landTax = parseFloat($('onLandManual').value)||0;
-    } else {
-      var base = parseFloat($('onLandBase').value)||0;
-      var rate = parseFloat(document.querySelector('#onLandRate button.active').dataset.v);
-      landTax = base * rate / 100;
-    }
+    var landTax = landMode === 'manual' ? (parseFloat($('onLandManual').value)||0) : computeLandTaxEstimate();
 
     var htghEnabled = $('onHtghEnable').checked;
     var htghTax = 0;
@@ -1025,7 +1055,8 @@
       if(selfUse && years >= 6){
         htghTax = Math.max(0, gain - 400) * 10 / 100;
       } else {
-        var rate2 = years < 2 ? 45 : years < 5 ? 35 : years < 10 ? 20 : 15;
+        // 房地合一稅2.0（個人，105/1/1後取得適用）：≤2年45%／2~5年35%／5~10年20%／>10年15%
+        var rate2 = years <= 2 ? 45 : years <= 5 ? 35 : years <= 10 ? 20 : 15;
         htghTax = gain * rate2 / 100;
       }
     }
@@ -1054,18 +1085,20 @@
       onCompute();
     });
   });
-  document.querySelectorAll('#onLandRate button').forEach(function(btn){
+  document.querySelectorAll('#onLandSelfUse button').forEach(function(btn){
     btn.addEventListener('click', function(){
-      document.querySelectorAll('#onLandRate button').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('#onLandSelfUse button').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
+      $('onLandGeneralWrap').style.display = btn.dataset.v==='general' ? 'block' : 'none';
       onCompute();
     });
   });
+  $('onLandHoldYears').addEventListener('change', onCompute);
   $('onHtghEnable').addEventListener('change', function(){
     $('onHtghWrap').style.display = this.checked ? 'block' : 'none';
     onCompute();
   });
-  ['onPrice','onLoanBal','onPrepayPct','onAgentPct','onPaperwork','onLandManual','onLandBase','onHtghCost','onHtghYears'].forEach(function(id){
+  ['onPrice','onLoanBal','onPrepayPct','onAgentPct','onPaperwork','onLandManual','onLandA','onLandB','onHtghCost','onHtghYears'].forEach(function(id){
     $(id).addEventListener('input', onCompute);
   });
   $('onHtghSelf').addEventListener('change', onCompute);
