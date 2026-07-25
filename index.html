@@ -1,0 +1,1860 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>永慶博愛凱璿 業務工具</title>
+<meta name="theme-color" content="#0C3A28">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<style>
+  :root{
+    color-scheme: light;
+    --paper:      #EDE8DA;
+    --plane:      #E4DECC;
+    --card:       #F6F3E8;
+    --ink:        #10201A;
+    --ink-soft:   #32473B;
+    --muted:      #5C6E60;
+    --border:     rgba(22,38,31,.14);
+    --border-2:   rgba(22,38,31,.24);
+    --brass:      #B8892B;
+    --brass-ink:  #6B4E17;
+    --brass-tint: #E4CD93;
+    --brass-soft: rgba(184,137,43,.14);
+    --good:       #0ca30c;
+    --warn:       #b8790f;
+    --crit:       #d03b3b;
+    --good-bg:    rgba(12,163,12,.12);
+    --warn-bg:    rgba(184,121,15,.14);
+    --crit-bg:    rgba(208,59,59,.12);
+    --shadow:     0 1px 2px rgba(22,38,31,.06), 0 6px 16px -8px rgba(22,38,31,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --paper:      #131F19;
+      --plane:      #0E1712;
+      --card:       #1B2A22;
+      --ink:        #ECE7D8;
+      --ink-soft:   #C3CFC6;
+      --muted:      #869386;
+      --border:     rgba(236,231,216,.12);
+      --border-2:   rgba(236,231,216,.2);
+      --brass:      #D9AE5C;
+      --brass-ink:  #F1D9A0;
+      --brass-tint: #4A3F22;
+      --brass-soft: rgba(217,174,92,.16);
+      --good:       #3FBE55;
+      --warn:       #E2A33D;
+      --crit:       #E2636F;
+      --good-bg:    rgba(63,190,85,.14);
+      --warn-bg:    rgba(226,163,61,.14);
+      --crit-bg:    rgba(226,99,111,.14);
+      --shadow:     0 1px 2px rgba(0,0,0,.3), 0 8px 20px -10px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --paper:      #131F19;
+    --plane:      #0E1712;
+    --card:       #1B2A22;
+    --ink:        #ECE7D8;
+    --ink-soft:   #C3CFC6;
+    --muted:      #869386;
+    --border:     rgba(236,231,216,.12);
+    --border-2:   rgba(236,231,216,.2);
+    --brass:      #D9AE5C;
+    --brass-ink:  #F1D9A0;
+    --brass-tint: #4A3F22;
+    --brass-soft: rgba(217,174,92,.16);
+    --good:       #3FBE55;
+    --warn:       #E2A33D;
+    --crit:       #E2636F;
+    --good-bg:    rgba(63,190,85,.14);
+    --warn-bg:    rgba(226,163,61,.14);
+    --crit-bg:    rgba(226,99,111,.14);
+    --shadow:     0 1px 2px rgba(0,0,0,.3), 0 8px 20px -10px rgba(0,0,0,.5);
+  }
+  :root[data-theme="light"]{
+    color-scheme: light;
+    --paper: #EDE8DA; --plane:#E4DECC; --card:#F6F3E8; --ink:#10201A; --ink-soft:#32473B;
+    --muted:#5C6E60; --border:rgba(22,38,31,.14); --border-2:rgba(22,38,31,.24);
+    --brass:#B8892B; --brass-ink:#6B4E17; --brass-tint:#E4CD93; --brass-soft:rgba(184,137,43,.14);
+    --good:#0ca30c; --warn:#b8790f; --crit:#d03b3b;
+    --good-bg:rgba(12,163,12,.12); --warn-bg:rgba(184,121,15,.14); --crit-bg:rgba(208,59,59,.12);
+    --shadow: 0 1px 2px rgba(22,38,31,.06), 0 6px 16px -8px rgba(22,38,31,.18);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--plane); color:var(--ink);
+    font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    overflow:hidden;
+  }
+  .num{font-family:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace; font-variant-numeric:tabular-nums;}
+  ::selection{background:var(--brass-soft);}
+
+  #app{
+    max-width:480px; margin:0 auto; height:100dvh;
+    display:flex; flex-direction:column; background:var(--paper);
+    box-shadow: var(--shadow);
+    position:relative;
+  }
+
+  header{
+    flex:0 0 auto; padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 12px;
+    background:var(--ink); color:var(--paper); position:relative; overflow:hidden;
+  }
+  header .seal{
+    position:absolute; right:-14px; top:-14px; width:108px; height:108px; border-radius:50%;
+    border:3px solid var(--brass); opacity:.55;
+  }
+  header .seal::after{
+    content:"3.0"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:ui-monospace,monospace; font-size:22px; font-weight:800; color:var(--brass); opacity:1;
+    transform:rotate(-8deg);
+  }
+  header .eyebrow{
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--brass);
+    font-family:ui-monospace,monospace; font-weight:700;
+  }
+  header h1{margin:3px 0 12px; font-size:23px; font-weight:800; letter-spacing:.02em;}
+  header .strip{
+    display:flex; gap:14px; font-size:13px; font-weight:600; color:rgba(237,232,218,.82);
+  }
+  header .strip b{
+    display:block; color:var(--paper); font-size:17px; font-weight:800; margin-top:2px;
+  }
+
+  main{flex:1 1 auto; overflow-y:auto; overflow-x:hidden; padding:14px 16px 22px; -webkit-overflow-scrolling:touch;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .18s ease both;}
+  .subpanel{display:none;}
+  .subpanel.active{display:block; animation:fade .18s ease both;}
+  @media (prefers-reduced-motion: reduce){ .panel.active, .subpanel.active{animation:none;} }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:14px 16px; margin-bottom:12px;
+  }
+  .card + .card{margin-top:0;}
+  .card h2{
+    margin:0 0 12px; font-size:14px; font-weight:800; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.08em; font-family:ui-monospace,monospace;
+  }
+  .stack{display:flex; flex-direction:column; gap:12px;}
+  .row{display:flex; gap:10px;}
+  .row > *{flex:1; min-width:0;}
+
+  label{display:block; font-size:14.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field-sub{font-size:12.5px; color:var(--muted); margin-top:5px;}
+
+  input[type="number"], select{
+    width:100%; font:inherit; font-size:17px; font-weight:600; padding:11px 12px; border-radius:10px;
+    border:1px solid var(--border-2); background:var(--paper); color:var(--ink);
+    font-family:ui-monospace,monospace;
+  }
+  select{font-family:inherit; font-size:15px;}
+  input[type="number"]:focus, select:focus{outline:2px solid var(--brass); outline-offset:1px;}
+  input.is-default{color:var(--muted); font-weight:500;}
+
+  .unit-input{position:relative;}
+  .unit-input input{padding-right:40px;}
+  .unit-input span{
+    position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--muted);
+  }
+
+  .seg{
+    display:flex; background:var(--paper); border:1px solid var(--border-2); border-radius:10px; padding:3px; gap:3px;
+  }
+  .seg button{
+    flex:1; border:none; background:transparent; padding:9px 4px; border-radius:7px;
+    font:inherit; font-size:13.5px; font-weight:700; color:var(--ink-soft); cursor:pointer;
+  }
+  .seg button.active{background:var(--brass); color:#fff;}
+  :root[data-theme="dark"] .seg button.active, .seg button.active{color:#241a06;}
+  .subseg{margin-bottom:14px;}
+
+  .slider-row{display:flex; align-items:center; gap:10px;}
+  input[type="range"]{
+    flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+    background:var(--border-2); outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--brass);
+    border:2px solid var(--card); box-shadow:0 1px 3px rgba(0,0,0,.3); cursor:pointer;
+  }
+  .slider-val{
+    min-width:60px; text-align:right; font-weight:800; font-size:16px; font-family:ui-monospace,monospace;
+  }
+
+  .cap-note{
+    font-size:12.5px; font-weight:600; color:var(--muted); margin-top:6px; padding:9px 10px; background:var(--paper);
+    border-radius:8px; border:1px solid var(--border);
+  }
+  .cap-note.over{color:var(--crit); background:var(--crit-bg); border-color:transparent;}
+
+  .mini-btn{
+    float:right; border:1px solid var(--brass); background:var(--brass-soft); color:var(--brass-ink);
+    font:inherit; font-size:12px; font-weight:800; padding:3px 10px; border-radius:20px; cursor:pointer;
+  }
+  .mini-btn:active{background:var(--brass); color:#fff;}
+
+  .burden{
+    margin-top:10px; padding:12px 13px; border-radius:10px; background:var(--paper);
+    border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;
+  }
+  .burden .bd-l{font-size:13.5px; font-weight:700; color:var(--ink-soft);}
+  .burden .bd-l small{display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin-top:2px;}
+  .burden .bd-v{font-size:21px; font-weight:800; font-family:ui-monospace,monospace;}
+  .burden.b-good{background:var(--good-bg); border-color:transparent;} .burden.b-good .bd-v{color:var(--good);}
+  .burden.b-warn{background:var(--warn-bg); border-color:transparent;} .burden.b-warn .bd-v{color:var(--warn);}
+  .burden.b-crit{background:var(--crit-bg); border-color:transparent;} .burden.b-crit .bd-v{color:var(--crit);}
+
+  .kpi-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .kpi{
+    background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:11px 12px;
+  }
+  .kpi .k-label{font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px;}
+  .kpi .k-val{font-size:21px; font-weight:800; font-family:ui-monospace,monospace;}
+  .kpi .k-val small{font-size:12px; font-weight:700; color:var(--muted); margin-left:2px;}
+  .kpi.accent{background:var(--brass-soft); border-color:transparent;}
+  .kpi.accent .k-val{color:var(--brass-ink);}
+
+  .grace-alert{
+    display:flex; gap:10px; align-items:flex-start; padding:12px 12px; border-radius:10px;
+    background:var(--warn-bg); border:1px solid transparent; margin-top:2px;
+  }
+  .grace-alert .ic{font-size:19px; line-height:1.3;}
+  .grace-alert .tx{font-size:13.5px; font-weight:600; line-height:1.55; color:var(--ink-soft);}
+  .grace-alert b{color:var(--warn); font-family:ui-monospace,monospace; font-weight:800;}
+
+  .chart-wrap{overflow-x:auto; padding-bottom:6px; margin:0 -4px;}
+  .chart{
+    display:flex; align-items:flex-end; gap:3px; height:128px; padding:20px 4px 0; min-width:100%;
+    width:max-content;
+  }
+  .bar-col{display:flex; flex-direction:column; align-items:center; width:14px; flex:0 0 auto;}
+  .bar-tag{font-size:10.5px; font-family:ui-monospace,monospace; color:var(--brass-ink); margin-bottom:3px; white-space:nowrap; font-weight:800;}
+  .bar{
+    width:100%; border-radius:3px 3px 0 0; background:var(--brass-tint); cursor:pointer;
+    transition:filter .1s ease;
+  }
+  .bar.repay{background:var(--brass);}
+  .bar.selected{outline:2px solid var(--ink); outline-offset:1px;}
+  :root[data-theme="dark"] .bar.selected, .bar.selected{outline-color:var(--ink);}
+  .bar:active{filter:brightness(.92);}
+  .chart-axis{display:flex; gap:3px; padding:0 4px; width:max-content; min-width:100%;}
+  .axis-tick{width:14px; flex:0 0 auto; text-align:center; font-size:10px; font-weight:600; color:var(--muted); font-family:ui-monospace,monospace;}
+
+  .legend{display:flex; gap:16px; margin-top:10px; font-size:13px; font-weight:600; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:11px; height:11px; border-radius:2px; display:inline-block; background:var(--brass-tint);}
+  .legend i.repay{background:var(--brass);}
+
+  .detail-card{
+    margin-top:10px; background:var(--paper); border:1px solid var(--border); border-radius:10px; padding:12px 13px;
+  }
+  .detail-card .dc-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .detail-card .dc-head b{font-size:15px; font-family:ui-monospace,monospace;}
+  .detail-card .dc-head span{font-size:12.5px; font-weight:600; color:var(--muted);}
+  .detail-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; font-size:14px;}
+  .detail-grid .dg-l{color:var(--muted); font-size:11.5px; font-weight:600; margin-bottom:3px;}
+  .detail-grid .dg-v{font-family:ui-monospace,monospace; font-weight:800;}
+
+  details.tablewrap{margin-top:12px;}
+  details.tablewrap summary{
+    cursor:pointer; font-size:13.5px; font-weight:800; color:var(--brass-ink); list-style:none;
+    display:flex; align-items:center; gap:5px; padding:4px 0;
+  }
+  details.tablewrap summary::-webkit-details-marker{display:none;}
+  details.tablewrap summary::before{content:"▸"; font-size:10px; transition:transform .15s;}
+  details.tablewrap[open] summary::before{transform:rotate(90deg);}
+  .tbl-scroll{overflow-x:auto; margin-top:8px;}
+  table{border-collapse:collapse; width:100%; font-size:13px; white-space:nowrap;}
+  table th, table td{padding:7px 9px; text-align:right; font-family:ui-monospace,monospace;}
+  table th{color:var(--muted); font-weight:700; border-bottom:1px solid var(--border-2); text-align:right; font-size:11.5px;}
+  table th:first-child, table td:first-child{text-align:left; font-family:inherit;}
+  table td{font-weight:600;}
+  table tr:nth-child(even) td{background:rgba(92,110,96,.09);}
+  table td{border-bottom:1px solid var(--border);}
+
+  .savings-banner{
+    display:flex; justify-content:space-between; align-items:center; background:var(--ink); color:var(--paper);
+    border-radius:12px; padding:14px 16px; margin-bottom:12px;
+  }
+  .savings-banner .sb-l div:first-child{font-size:12.5px; font-weight:600; color:rgba(237,232,218,.78); margin-bottom:4px;}
+  .savings-banner .sb-l div:last-child{font-size:24px; font-weight:800; font-family:ui-monospace,monospace; color:var(--brass-tint);}
+  :root[data-theme="dark"] .savings-banner .sb-l div:last-child{color:var(--brass);}
+  .savings-banner .sb-r{font-size:34px;}
+
+  .elig-row{
+    display:flex; align-items:center; gap:12px; padding:13px 4px; border-bottom:1px solid var(--border);
+  }
+  .elig-row:last-child{border-bottom:none;}
+  .elig-row .chip{
+    flex:0 0 auto; width:27px; height:27px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800;
+  }
+  .chip.pass{background:var(--good-bg); color:var(--good);}
+  .chip.fail{background:var(--crit-bg); color:var(--crit);}
+  .elig-row .et{flex:1; font-size:14px; color:var(--ink-soft);}
+  .elig-row .et b{color:var(--ink); display:block; font-size:14.5px; font-weight:700; margin-bottom:2px;}
+  .elig-row .et small{font-size:12.5px; font-weight:600; color:var(--muted); font-family:ui-monospace,monospace;}
+  .elig-summary{
+    text-align:center; padding:17px; border-radius:12px; margin-bottom:12px; font-weight:800; font-size:15.5px;
+  }
+  .elig-summary.all-pass{background:var(--good-bg); color:var(--good);}
+  .elig-summary.some-fail{background:var(--crit-bg); color:var(--crit);}
+
+  .stress-card{margin-bottom:12px;}
+  .stress-row{display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--border);}
+  .stress-row:last-child{border-bottom:none;}
+  .stress-row .sr-l{font-size:13.5px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; gap:8px;}
+  .stress-row .sr-l i{width:11px; height:11px; border-radius:2px; background:var(--muted); display:inline-block;}
+  .stress-row.r1 .sr-l i{background:var(--warn);}
+  .stress-row.r2 .sr-l i{background:var(--crit);}
+  .stress-row .sr-v{font-family:ui-monospace,monospace; font-weight:800; font-size:16.5px; text-align:right;}
+  .stress-row .sr-v small{display:block; font-size:11.5px; font-weight:700; color:var(--muted);}
+
+  nav{
+    flex:0 0 auto; display:flex; border-top:1px solid var(--border);
+    background:var(--card); padding:7px 6px calc(env(safe-area-inset-bottom,0px) + 7px);
+  }
+  nav button{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px;
+    border:none; background:transparent; color:var(--muted); font:inherit; cursor:pointer; border-radius:10px;
+  }
+  nav button .ic{font-size:24px; line-height:1;}
+  nav button .lb{font-size:11.5px; font-weight:700;}
+  nav button.active{color:var(--brass-ink);}
+  nav button.active .ic{transform:translateY(-1px);}
+
+  .subnav{
+    display:flex; gap:4px; background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:5px; margin-bottom:14px; overflow-x:auto;
+  }
+  .subnav button{
+    flex:1 0 auto; min-width:56px; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:8px 2px; border:none; background:transparent; color:var(--muted); font:inherit; cursor:pointer; border-radius:8px;
+  }
+  .subnav button .ic{font-size:17px; line-height:1;}
+  .subnav button .lb{font-size:10.5px; font-weight:700;}
+  .subnav button.active{background:var(--brass); color:#241a06;}
+
+  .theme-btn{
+    position:absolute; top:calc(env(safe-area-inset-top,0px) + 14px); right:16px;
+    width:30px; height:30px; border-radius:50%; border:1px solid rgba(237,232,218,.3);
+    background:rgba(237,232,218,.08); color:var(--brass); font-size:14px; cursor:pointer;
+  }
+
+  .big-btn{
+    width:100%; border:none; border-radius:12px; background:var(--brass); color:#241a06;
+    font:inherit; font-size:16px; font-weight:800; padding:14px; cursor:pointer; margin-bottom:4px;
+  }
+  .big-btn:active{filter:brightness(.94);}
+
+  .lead-note{font-size:13.5px; font-weight:600; line-height:1.6; color:var(--ink-soft); margin:0 0 14px;}
+  .lead-note b{color:var(--brass-ink); font-weight:800;}
+
+  .adv-card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:14px 16px; margin-bottom:12px;
+  }
+  .adv-card summary{
+    cursor:pointer; font-size:14px; font-weight:800; color:var(--muted); list-style:none;
+    text-transform:uppercase; letter-spacing:.06em; font-family:ui-monospace,monospace;
+    display:flex; align-items:center; gap:6px;
+  }
+  .adv-card summary::-webkit-details-marker{display:none;}
+  .adv-card summary::before{content:"▸"; font-size:11px; transition:transform .15s;}
+  .adv-card[open] summary::before{transform:rotate(90deg);}
+
+  .ghost-btn{
+    width:100%; border:1px solid var(--border-2); border-radius:12px; background:transparent; color:var(--ink-soft);
+    font:inherit; font-size:14.5px; font-weight:700; padding:12px; cursor:pointer; margin-top:2px;
+  }
+  .ghost-btn:active{background:var(--card);}
+
+  .legacy-hero{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center;}
+  .legacy-hero .lh-box{background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:13px 10px; text-align:center;}
+  .legacy-hero .lh-box.after{background:var(--warn-bg); border-color:transparent;}
+  .legacy-hero .lh-l{font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px;}
+  .legacy-hero .lh-v{font-size:19px; font-weight:800; font-family:ui-monospace,monospace;}
+  .legacy-hero .lh-box.after .lh-v{color:var(--warn);}
+  .legacy-hero .lh-r{font-size:11.5px; font-weight:600; color:var(--muted); margin-top:3px;}
+  .legacy-hero .lh-arrow{font-size:22px; color:var(--muted);}
+
+  .shot-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.82); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .shot-inner{max-width:420px; width:100%; display:flex; flex-direction:column; gap:12px; align-items:center;}
+  .shot-inner img{width:100%; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.5);}
+  .shot-hint{color:#fff; font-size:13.5px; font-weight:600; text-align:center; margin:0;}
+  .shot-inner .big-btn{max-width:200px;}
+
+  .topview{display:block;}
+  .iframe-wrap{height:calc(100dvh - 230px); min-height:420px; border-radius:14px; overflow:hidden; border:1px solid var(--border);}
+  .iframe-wrap iframe{width:100%; height:100%; border:0; background:var(--card);}
+  input[type="checkbox"]{accent-color:var(--brass);}
+</style>
+
+<div id="app">
+  <header>
+    <div class="seal" id="qaSeal" style="display:none"></div>
+    <div class="eyebrow" id="hdrEyebrow">永慶博愛凱璿 · 業務工具</div>
+    <h1 id="hdrTitle">屋主評估</h1>
+    <div class="strip" id="qaStrip" style="display:none">
+      <div>貸款金額 <b class="num" id="hdrLoan">—</b></div>
+      <div>目前利率 <b class="num" id="hdrRate">—</b></div>
+      <div>月繳(現階段) <b class="num" id="hdrPay">—</b></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ 屋主 ============ -->
+    <section class="topview" data-top="owner" id="ownerView">
+      <div class="seg subseg" id="ownerSubSeg">
+        <button data-v="net" class="active">實拿試算</button>
+        <button data-v="price">開價建議</button>
+      </div>
+
+      <div class="subpanel active" data-sub="net">
+        <div class="card">
+          <h2>成交與貸款</h2>
+          <div class="stack">
+            <div>
+              <label for="onPrice">成交總價</label>
+              <div class="unit-input"><input type="number" id="onPrice" value="1200" min="0" step="10"><span>萬元</span></div>
+            </div>
+            <div>
+              <label for="onLoanBal">原房貸餘額（無則留0）</label>
+              <div class="unit-input"><input type="number" id="onLoanBal" value="0" min="0" step="10"><span>萬元</span></div>
+            </div>
+            <div>
+              <label for="onPrepayPct">提前清償違約金率（銀行提供，無則留0）</label>
+              <div class="unit-input"><input type="number" id="onPrepayPct" value="0" min="0" step="0.1"><span>%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>仲介與代辦費用</h2>
+          <div class="stack">
+            <div>
+              <label for="onAgentPct">仲介服務費率</label>
+              <div class="unit-input"><input type="number" id="onAgentPct" value="4" min="0" max="6" step="0.5"><span>%</span></div>
+            </div>
+            <div>
+              <label for="onPaperwork">代書/塗銷/規費雜支（概算）</label>
+              <div class="unit-input"><input type="number" id="onPaperwork" value="1.5" min="0" step="0.5"><span>萬元</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>土地增值稅</h2>
+          <div class="seg" id="onLandMode">
+            <button data-v="manual" class="active">自行輸入金額</button>
+            <button data-v="estimate">簡易估算</button>
+          </div>
+          <div class="stack" style="margin-top:12px;" id="onLandManualWrap">
+            <div>
+              <label for="onLandManual">土地增值稅金額（向地政士確認）</label>
+              <div class="unit-input"><input type="number" id="onLandManual" value="0" min="0" step="1"><span>萬元</span></div>
+            </div>
+          </div>
+          <div class="stack" style="margin-top:12px; display:none;" id="onLandEstWrap">
+            <div>
+              <label for="onLandBase">土地公告現值總漲價數額（查地政系統）</label>
+              <div class="unit-input"><input type="number" id="onLandBase" value="0" min="0" step="1"><span>萬元</span></div>
+            </div>
+            <div>
+              <label>適用稅率</label>
+              <div class="seg" id="onLandRate">
+                <button data-v="10" class="active">自用住宅 10%</button>
+                <button data-v="20">一般稅率 20%起</button>
+              </div>
+            </div>
+            <div class="cap-note">簡易估算僅抓最低稅率概算，實際依漲價倍數累進課徵，正式金額請洽地政士。</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>房地合一稅（106/1/1後取得適用）</h2>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
+            <input type="checkbox" id="onHtghEnable" style="width:18px;height:18px;">
+            這筆需要試算房地合一稅
+          </label>
+          <div class="stack" style="margin-top:12px; display:none;" id="onHtghWrap">
+            <div>
+              <label for="onHtghCost">取得成本（買入價+已認列費用，萬元）</label>
+              <div class="unit-input"><input type="number" id="onHtghCost" value="0" min="0" step="10"><span>萬元</span></div>
+            </div>
+            <div>
+              <label for="onHtghYears">持有年數</label>
+              <div class="unit-input"><input type="number" id="onHtghYears" value="1" min="0" step="0.5"><span>年</span></div>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
+              <input type="checkbox" id="onHtghSelf" style="width:18px;height:18px;">
+              符合自住優惠（持有滿6年+設籍+無出租營業）
+            </label>
+            <div class="cap-note">速查稅率：未滿2年45%／2~5年35%／5~10年20%／滿10年15%；自住優惠：獲利400萬以下免稅、超過部分按10%課徵。僅供概算，正式申報以國稅局試算為準。</div>
+          </div>
+        </div>
+
+        <div class="savings-banner">
+          <div class="sb-l"><div>屋主預估實拿</div><div class="num" id="onNetVal">—</div></div>
+          <div class="sb-r">💰</div>
+        </div>
+
+        <div class="card">
+          <h2>扣除明細</h2>
+          <div class="kpi-grid" id="onBreakdown"></div>
+        </div>
+      </div>
+
+      <div class="subpanel" data-sub="price">
+        <div class="card">
+          <h2>物件條件</h2>
+          <div class="stack">
+            <div>
+              <label for="pdDistrict">行政區（高雄）</label>
+              <select id="pdDistrict"><option value="">載入中…</option></select>
+            </div>
+            <div class="row">
+              <div>
+                <label for="pdType">類型</label>
+                <select id="pdType">
+                  <option value="all">全部類型</option>
+                  <option value="住宅大樓">住宅大樓</option>
+                  <option value="華廈">華廈</option>
+                  <option value="公寓">公寓</option>
+                  <option value="透天厝">透天厝</option>
+                  <option value="套房">套房</option>
+                </select>
+              </div>
+              <div>
+                <label for="pdYears">回溯範圍</label>
+                <select id="pdYears">
+                  <option value="1">近1年</option>
+                  <option value="2" selected>近2年</option>
+                  <option value="3">近3年</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="pdArea">物件坪數</label>
+              <div class="unit-input"><input type="number" id="pdArea" value="30" min="0" step="1"><span>坪</span></div>
+            </div>
+          </div>
+          <button type="button" class="big-btn" id="pdQueryBtn" style="margin-top:14px;">🔍 查詢附近行情</button>
+        </div>
+
+        <div id="pdResultWrap" style="display:none;">
+          <div class="card">
+            <h2>建議開價區間</h2>
+            <div class="kpi-grid">
+              <div class="kpi"><div class="k-label">單價區間（萬/坪）</div><div class="k-val num" id="pdUpRange">—</div></div>
+              <div class="kpi accent"><div class="k-label">建議開價區間</div><div class="k-val num" id="pdPriceRange">—</div></div>
+              <div class="kpi"><div class="k-label">單價中位數</div><div class="k-val num" id="pdUpMed">—</div></div>
+              <div class="kpi"><div class="k-label">參考樣本數</div><div class="k-val num" id="pdCount">—</div></div>
+            </div>
+            <div class="cap-note" id="pdNote"></div>
+          </div>
+          <div class="card">
+            <h2>最近成交案例</h2>
+            <div class="tbl-scroll"><table id="pdTable"></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 買方 ============ -->
+    <section class="topview" data-top="buyer" id="buyerView" style="display:none">
+      <div class="seg subseg" id="buyerSubSeg">
+        <button data-v="general" class="active">一般試算</button>
+        <button data-v="qingan3">新青安3.0</button>
+      </div>
+
+      <div class="subpanel active" data-sub="general">
+        <div class="card">
+          <h2>房屋與貸款</h2>
+          <div class="stack">
+            <div>
+              <label for="gnPrice">房屋總價</label>
+              <div class="unit-input"><input type="number" id="gnPrice" value="1200" min="0" step="10"><span>萬元</span></div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="gnDown">自備款 <button type="button" class="mini-btn" id="gnBtn80">一鍵貸8成</button></label>
+                <div class="unit-input"><input type="number" id="gnDown" value="240" min="0" step="5"><span>萬元</span></div>
+              </div>
+              <div>
+                <label>貸款成數</label>
+                <div class="unit-input"><input type="number" id="gnLtvShow" readonly style="background:var(--plane);color:var(--muted)"><span>%</span></div>
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="gnRate">貸款利率</label>
+                <div class="unit-input"><input type="number" id="gnRate" value="2.2" min="0" step="0.05"><span>%</span></div>
+              </div>
+              <div>
+                <label>貸款年限</label>
+                <div class="slider-row"><input type="range" id="gnTerm" min="5" max="40" value="30" step="1"><div class="slider-val num" id="gnTermVal">30 年</div></div>
+              </div>
+            </div>
+            <div>
+              <label>寬限期（只繳息不還本）</label>
+              <div class="slider-row"><input type="range" id="gnGrace" min="0" max="5" value="0" step="1"><div class="slider-val num" id="gnGraceVal">0 年</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>負擔評估</h2>
+          <div>
+            <label for="gnIncome">借款人年所得（選填）</label>
+            <div class="unit-input"><input type="number" id="gnIncome" value="0" min="0" step="5"><span>萬/年</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>試算結果</h2>
+          <div class="kpi-grid">
+            <div class="kpi accent"><div class="k-label">貸款金額</div><div class="k-val num" id="gnLoan">—</div></div>
+            <div class="kpi"><div class="k-label">貸款成數</div><div class="k-val num" id="gnLtv">—</div></div>
+            <div class="kpi"><div class="k-label">寬限期月付（純息）</div><div class="k-val num" id="gnGracePay">—</div></div>
+            <div class="kpi"><div class="k-label">寬限期後月付</div><div class="k-val num" id="gnRepayPay">—</div></div>
+            <div class="kpi"><div class="k-label">總繳利息</div><div class="k-val num" id="gnInterest">—</div></div>
+            <div class="kpi"><div class="k-label">總還款金額</div><div class="k-val num" id="gnTotal">—</div></div>
+          </div>
+          <div class="burden" id="gnBurden"></div>
+        </div>
+        <div class="cap-note">房仲場邊快篩用，非銀行正式核貸試算；實際核貸利率與額度依銀行審核為準。</div>
+      </div>
+
+      <div class="subpanel" data-sub="qingan3" id="buyerQingan">
+        <div class="subnav" id="qaNav">
+          <button data-panel="input" class="active"><span class="ic">✏️</span><span class="lb">輸入</span></button>
+          <button data-panel="result"><span class="ic">📊</span><span class="lb">結果</span></button>
+          <button data-panel="elig"><span class="ic">✅</span><span class="lb">快篩</span></button>
+          <button data-panel="stress"><span class="ic">⚡</span><span class="lb">壓力</span></button>
+          <button data-panel="legacy"><span class="ic">🔁</span><span class="lb">舊戶</span></button>
+        </div>
+
+        <!-- ============ 輸入 ============ -->
+        <section class="panel active" data-panel="input">
+          <div class="card">
+            <h2>房屋與貸款</h2>
+            <div class="stack">
+              <div>
+                <label for="price">房屋總價</label>
+                <div class="unit-input"><input type="number" id="price" value="1200" min="0" step="10"><span>萬元</span></div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="down">自備款 <button type="button" class="mini-btn" id="btn80">一鍵貸8成</button></label>
+                  <div class="unit-input"><input type="number" id="down" value="240" min="0" step="5"><span>萬元</span></div>
+                </div>
+                <div>
+                  <label>貸款成數</label>
+                  <div class="unit-input"><input type="number" id="ltvShow" readonly style="background:var(--plane);color:var(--muted)"><span>%</span></div>
+                </div>
+              </div>
+              <div class="cap-note" id="ltvNote"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>身分與地區</h2>
+            <div class="stack">
+              <div>
+                <label>家庭身分（決定貸款額度上限）</label>
+                <div class="seg" id="famSeg">
+                  <button data-v="general" class="active">一般</button>
+                  <button data-v="newlywed">新婚2年內</button>
+                  <button data-v="children">育有未成年子女</button>
+                </div>
+              </div>
+              <div>
+                <label for="city">房屋所在地（決定房價上限）</label>
+                <select id="city">
+                  <option value="taipei">台北市（上限 3,500 萬）</option>
+                  <option value="newtaipei_hsinchu" selected>新北・新竹縣市（上限 2,500 萬）</option>
+                  <option value="other">其他縣市（上限 2,000 萬）</option>
+                </select>
+              </div>
+              <div class="cap-note" id="capNote"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>年限與寬限期</h2>
+            <div class="stack">
+              <div>
+                <label>貸款年限</label>
+                <div class="slider-row">
+                  <input type="range" id="term" min="5" max="40" value="30" step="1">
+                  <div class="slider-val num" id="termVal">30 年</div>
+                </div>
+              </div>
+              <div>
+                <label>寬限期（只繳息不還本）</label>
+                <div class="slider-row">
+                  <input type="range" id="grace" min="0" max="5" value="3" step="1">
+                  <div class="slider-val num" id="graceVal">3 年</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <details class="adv-card">
+            <summary>進階設定（利率基準・保費）</summary>
+            <div class="stack" style="margin-top:14px;">
+              <div>
+                <label for="baseRate">第1~3年補貼後利率</label>
+                <div class="unit-input"><input type="number" id="baseRate" value="1.775" min="0" max="10" step="0.005"><span>%</span></div>
+                <div class="field-sub">政策基準日 2024/3（郵政2年定儲1.72%）。央行升息時，把這格改成銀行給的最新補貼利率，後續各年會自動同步平移。</div>
+              </div>
+              <div>
+                <label for="fees">每月其他費用（火險＋地震險等）</label>
+                <div class="unit-input"><input type="number" id="fees" value="300" min="0" step="50"><span>元/月</span></div>
+                <div class="field-sub">已帶入常見值 ≈ 300 元/月（住宅火險＋基本地震險約年繳 3,600，灰字代表預設估值，可依實際保費改）。填入後會併進月繳與負擔率。</div>
+              </div>
+            </div>
+          </details>
+
+          <button type="button" class="ghost-btn" id="btnReset">🔄 清空重填（換下一位客戶）</button>
+        </section>
+
+        <!-- ============ 結果 ============ -->
+        <section class="panel" data-panel="result">
+          <div class="savings-banner">
+            <div class="sb-l">
+              <div id="savingsLabel">比一般房貸（2.275% 一段式）省下利息</div>
+              <div class="num" id="savingsVal">—</div>
+            </div>
+            <div class="sb-r">🏡</div>
+          </div>
+
+          <div class="card">
+            <h2>總覽</h2>
+            <div class="kpi-grid">
+              <div class="kpi accent"><div class="k-label">貸款金額</div><div class="k-val num" id="kLoan">—</div></div>
+              <div class="kpi"><div class="k-label">貸款成數</div><div class="k-val num" id="kLtv">—</div></div>
+              <div class="kpi"><div class="k-label">總繳利息（3.0）</div><div class="k-val num" id="kInterest">—</div></div>
+              <div class="kpi"><div class="k-label">總還款金額</div><div class="k-val num" id="kTotal">—</div></div>
+            </div>
+            <div class="burden" id="burden"></div>
+            <div class="grace-alert" id="graceAlert" style="display:none;">
+              <div class="ic">⚠️</div>
+              <div class="tx">寬限期結束後，月繳從 <b class="num" id="gaFrom">—</b> 跳升至 <b class="num" id="gaTo">—</b>，提醒客戶提前準備。</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>逐年月繳時間軸（點一下看細節）</h2>
+            <div class="chart-wrap">
+              <div class="chart" id="chart"></div>
+              <div class="chart-axis" id="chartAxis"></div>
+            </div>
+            <div class="legend">
+              <span><i></i>寬限期（只繳息）</span>
+              <span><i class="repay"></i>本息攤還</span>
+            </div>
+            <div class="detail-card" id="yearDetail"></div>
+
+            <details class="tablewrap">
+              <summary>展開逐年明細表</summary>
+              <div class="tbl-scroll">
+                <table id="yearTable"></table>
+              </div>
+            </details>
+          </div>
+
+          <button type="button" class="big-btn" id="btnShot">📷 存成圖片傳給客戶</button>
+        </section>
+
+        <!-- ============ 快篩 ============ -->
+        <section class="panel" data-panel="elig">
+          <div class="card">
+            <h2>客戶基本資料</h2>
+            <div class="row">
+              <div>
+                <label for="age">借款人年齡</label>
+                <div class="unit-input"><input type="number" id="age" value="35" min="18" max="80"><span>歲</span></div>
+              </div>
+              <div>
+                <label for="income">借款人年所得</label>
+                <div class="unit-input"><input type="number" id="income" value="80" min="0" step="5"><span>萬/年</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="elig-summary" id="eligSummary"></div>
+
+          <div class="card">
+            <h2>資格檢核</h2>
+            <div id="eligList"></div>
+          </div>
+        </section>
+
+        <!-- ============ 壓力測試 ============ -->
+        <section class="panel" data-panel="stress">
+          <div class="card stress-card">
+            <h2 id="stressGraceTitle">寬限期結束後首年月繳</h2>
+            <div id="stressGrace"></div>
+          </div>
+          <div class="card stress-card">
+            <h2 id="stressLaterTitle">補貼結束後月繳</h2>
+            <div id="stressLater"></div>
+          </div>
+          <div class="cap-note">利率為機動計息，「+1碼」= +0.25%、「+2碼」= +0.5%，僅供風險提醒，非官方預估值。</div>
+        </section>
+
+        <!-- ============ 舊戶模式 ============ -->
+        <section class="panel" data-panel="legacy">
+          <div class="card">
+            <h2>青安 1.0 / 2.0 舊客戶試算</h2>
+            <p class="lead-note">3.0 的「補貼遞減」溯及既往：舊戶只要利息補貼滿 3 年，<b>2026/8/1 起</b>補貼開始逐年遞減、月繳會變多。輸入舊客戶的貸款資料，算出他之後要多繳多少。</p>
+            <div class="stack">
+              <div class="row">
+                <div>
+                  <label for="legOrig">原始貸款金額</label>
+                  <div class="unit-input"><input type="number" id="legOrig" value="1000" min="0" step="10"><span>萬元</span></div>
+                </div>
+                <div>
+                  <label for="legTerm">原始貸款年限</label>
+                  <div class="unit-input"><input type="number" id="legTerm" value="40" min="1" max="40"><span>年</span></div>
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label for="legYear">撥款年份（民國）</label>
+                  <div class="unit-input"><input type="number" id="legYear" value="113" min="112" max="115"><span>年</span></div>
+                </div>
+                <div>
+                  <label for="legMonth">撥款月份</label>
+                  <div class="unit-input"><input type="number" id="legMonth" value="1" min="1" max="12"><span>月</span></div>
+                </div>
+              </div>
+              <div>
+                <label for="legGrace">當初申請的寬限期</label>
+                <div class="slider-row">
+                  <input type="range" id="legGrace" min="0" max="5" value="0" step="1">
+                  <div class="slider-val num" id="legGraceVal">0 年</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>8/1 起的變化</h2>
+            <div class="legacy-hero" id="legacyHero"></div>
+            <div class="detail-card" id="legacyDetail" style="margin-top:12px;"></div>
+          </div>
+
+          <div class="card">
+            <h2>未來逐年月繳（8/1 之後）</h2>
+            <div class="tbl-scroll">
+              <table id="legacyTable"></table>
+            </div>
+            <p class="lead-note" style="margin-top:10px;">※ 本試算依 3+3 遞減規則推估，實際以銀行通知的利率與帳單為準。</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ 實價登錄 ============ -->
+    <section class="topview" data-top="market" id="marketView" style="display:none">
+      <div class="cap-note" style="margin-bottom:12px;">六都/全台量能 + 高雄38區細部行情，每日自動更新。</div>
+      <div class="iframe-wrap"><iframe id="marketFrame" title="實價登錄行情看板" loading="lazy"></iframe></div>
+    </section>
+  </main>
+
+  <nav id="topNav">
+    <button class="active" data-top="owner"><span class="ic">🏠</span><span class="lb">屋主</span></button>
+    <button data-top="buyer"><span class="ic">🏡</span><span class="lb">買方</span></button>
+    <button data-top="market"><span class="ic">📈</span><span class="lb">實價登錄</span></button>
+  </nav>
+</div>
+
+<canvas id="shotCanvas" style="display:none;"></canvas>
+<div id="shotOverlay" class="shot-overlay" style="display:none;">
+  <div class="shot-inner">
+    <img id="shotImg" alt="試算結果圖">
+    <p class="shot-hint">長按圖片即可「儲存影像」或分享到 LINE</p>
+    <button type="button" class="big-btn" id="shotClose">關閉</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---------- theme toggle button injected into header (shared across all modes) ----------
+  var themeBtn = document.createElement('button');
+  themeBtn.className = 'theme-btn';
+  themeBtn.textContent = '◐';
+  themeBtn.setAttribute('aria-label','切換深淺色');
+  document.querySelector('header').appendChild(themeBtn);
+  themeBtn.addEventListener('click', function(){
+    var root = document.documentElement;
+    var cur = root.getAttribute('data-theme');
+    var nextTheme = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', nextTheme);
+    try{ localStorage.setItem('yc-theme', nextTheme); }catch(e){}
+  });
+  try{
+    var savedTheme = localStorage.getItem('yc-theme');
+    if(savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  }catch(e){}
+
+  function money(n){
+    if(!isFinite(n)) n = 0;
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function wanFmt(d){
+    if(!isFinite(d)) d = 0;
+    var w = d/10000;
+    return w.toLocaleString('en-US', {maximumFractionDigits: Math.abs(w) >= 100 ? 0 : 1}) + ' 萬';
+  }
+  window.ycMoney = money; window.ycWanFmt = wanFmt;
+
+  // ================================================================
+  // 頂層三大頁籤（屋主 / 買方 / 實價登錄）
+  // ================================================================
+  var TOP_TITLES = { owner:'屋主評估', buyer:'買方試算', market:'實價登錄查詢' };
+  var topNavButtons = document.querySelectorAll('#topNav button');
+  var topViews = document.querySelectorAll('.topview');
+  var currentBuyerSub = 'general';
+
+  function updateHeaderStrip(top){
+    var showQaStrip = (top==='buyer' && currentBuyerSub==='qingan3');
+    $('qaSeal').style.display = showQaStrip ? 'block' : 'none';
+    $('qaStrip').style.display = showQaStrip ? 'flex' : 'none';
+  }
+
+  function ensureMarketFrame(){
+    var f = $('marketFrame');
+    if(!f.src) f.src = 'https://gerla9711010-eng.github.io/kh-market/';
+  }
+
+  function setTop(top){
+    topNavButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.top===top); });
+    topViews.forEach(function(v){ v.style.display = (v.dataset.top===top) ? '' : 'none'; });
+    $('hdrTitle').textContent = TOP_TITLES[top];
+    updateHeaderStrip(top);
+    if(top==='market') ensureMarketFrame();
+    document.querySelector('main').scrollTop = 0;
+    try{ localStorage.setItem('yc-top', top); }catch(e){}
+  }
+  topNavButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){ setTop(btn.dataset.top); });
+  });
+
+  // ---------- 屋主子頁籤 ----------
+  var ownerSubButtons = document.querySelectorAll('#ownerSubSeg button');
+  ownerSubButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      ownerSubButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('#ownerView .subpanel').forEach(function(p){ p.classList.remove('active'); });
+      document.querySelector('#ownerView .subpanel[data-sub="'+btn.dataset.v+'"]').classList.add('active');
+    });
+  });
+
+  // ---------- 買方子頁籤 ----------
+  var buyerSubButtons = document.querySelectorAll('#buyerSubSeg button');
+  buyerSubButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      buyerSubButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('#buyerView .subpanel').forEach(function(p){ p.classList.remove('active'); });
+      document.querySelector('#buyerView .subpanel[data-sub="'+btn.dataset.v+'"]').classList.add('active');
+      currentBuyerSub = btn.dataset.v;
+      updateHeaderStrip('buyer');
+    });
+  });
+
+  var savedTop = 'owner';
+  try{ savedTop = localStorage.getItem('yc-top') || 'owner'; }catch(e){}
+  setTop(savedTop);
+
+  // ================================================================
+  // 屋主：實拿試算
+  // ================================================================
+  function kpiHtml(label, val, accent){
+    return '<div class="kpi'+(accent?' accent':'')+'"><div class="k-label">'+label+'</div><div class="k-val num">'+val+'</div></div>';
+  }
+
+  function onCompute(){
+    var price = parseFloat($('onPrice').value)||0;
+    var loanBal = parseFloat($('onLoanBal').value)||0;
+    var prepayPct = parseFloat($('onPrepayPct').value)||0;
+    var agentPct = parseFloat($('onAgentPct').value)||0;
+    var paperwork = parseFloat($('onPaperwork').value)||0;
+
+    var landMode = document.querySelector('#onLandMode button.active').dataset.v;
+    var landTax = 0;
+    if(landMode === 'manual'){
+      landTax = parseFloat($('onLandManual').value)||0;
+    } else {
+      var base = parseFloat($('onLandBase').value)||0;
+      var rate = parseFloat(document.querySelector('#onLandRate button.active').dataset.v);
+      landTax = base * rate / 100;
+    }
+
+    var htghEnabled = $('onHtghEnable').checked;
+    var htghTax = 0;
+    if(htghEnabled){
+      var cost = parseFloat($('onHtghCost').value)||0;
+      var years = parseFloat($('onHtghYears').value)||0;
+      var selfUse = $('onHtghSelf').checked;
+      var gain = Math.max(0, price - cost);
+      if(selfUse && years >= 6){
+        htghTax = Math.max(0, gain - 400) * 10 / 100;
+      } else {
+        var rate2 = years < 2 ? 45 : years < 5 ? 35 : years < 10 ? 20 : 15;
+        htghTax = gain * rate2 / 100;
+      }
+    }
+
+    var prepayFee = loanBal * prepayPct / 100;
+    var agentFee = price * agentPct / 100;
+    var net = price - loanBal - prepayFee - agentFee - paperwork - landTax - htghTax;
+
+    $('onNetVal').textContent = net.toLocaleString('en-US',{maximumFractionDigits:1}) + ' 萬';
+    var rows = kpiHtml('成交總價', price+' 萬', true) +
+      kpiHtml('原房貸餘額', loanBal+' 萬') +
+      kpiHtml('提前清償違約金', prepayFee.toFixed(1)+' 萬') +
+      kpiHtml('仲介服務費', agentFee.toFixed(1)+' 萬') +
+      kpiHtml('代書/規費雜支', paperwork+' 萬') +
+      kpiHtml('土地增值稅', landTax.toFixed(1)+' 萬');
+    if(htghEnabled) rows += kpiHtml('房地合一稅', htghTax.toFixed(1)+' 萬');
+    $('onBreakdown').innerHTML = rows;
+  }
+
+  document.querySelectorAll('#onLandMode button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#onLandMode button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      $('onLandManualWrap').style.display = btn.dataset.v==='manual' ? 'block' : 'none';
+      $('onLandEstWrap').style.display = btn.dataset.v==='estimate' ? 'block' : 'none';
+      onCompute();
+    });
+  });
+  document.querySelectorAll('#onLandRate button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#onLandRate button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      onCompute();
+    });
+  });
+  $('onHtghEnable').addEventListener('change', function(){
+    $('onHtghWrap').style.display = this.checked ? 'block' : 'none';
+    onCompute();
+  });
+  ['onPrice','onLoanBal','onPrepayPct','onAgentPct','onPaperwork','onLandManual','onLandBase','onHtghCost','onHtghYears'].forEach(function(id){
+    $(id).addEventListener('input', onCompute);
+  });
+  $('onHtghSelf').addEventListener('change', onCompute);
+  onCompute();
+
+  // ================================================================
+  // 屋主：開價建議（讀取 kh-market 實價登錄資料）
+  // ================================================================
+  var KH_BASE = 'https://gerla9711010-eng.github.io/kh-market/';
+  var khManifest = null, khManifestPromise = null;
+
+  function loadKhManifest(){
+    if(khManifestPromise) return khManifestPromise;
+    khManifestPromise = fetch(KH_BASE + 'data/manifest.json').then(function(r){ return r.json(); }).then(function(m){
+      khManifest = m;
+      var districts = m.districts.slice().sort(function(a,b){ return a.district.localeCompare(b.district,'zh-Hant'); });
+      $('pdDistrict').innerHTML = districts.map(function(d){ return '<option value="'+d.district+'">'+d.district+'</option>'; }).join('');
+      return m;
+    }).catch(function(){
+      $('pdDistrict').innerHTML = '<option value="">行情資料載入失敗</option>';
+      return null;
+    });
+    return khManifestPromise;
+  }
+  loadKhManifest();
+
+  function median(arr){
+    if(!arr.length) return 0;
+    var s = arr.slice().sort(function(a,b){ return a-b; });
+    var mid = Math.floor(s.length/2);
+    return s.length % 2 ? s[mid] : (s[mid-1]+s[mid])/2;
+  }
+  function quantile(arr, p){
+    if(!arr.length) return 0;
+    var s = arr.slice().sort(function(a,b){ return a-b; });
+    var idx = (s.length-1)*p;
+    var lo = Math.floor(idx), hi = Math.ceil(idx);
+    if(lo === hi) return s[lo];
+    return s[lo] + (s[hi]-s[lo])*(idx-lo);
+  }
+
+  $('pdQueryBtn').addEventListener('click', function(){
+    var btn = $('pdQueryBtn');
+    loadKhManifest().then(function(m){
+      if(!m) return;
+      var district = $('pdDistrict').value;
+      var type = $('pdType').value;
+      var lookback = parseInt($('pdYears').value,10);
+      var area = parseFloat($('pdArea').value)||0;
+      var entry = m.districts.find(function(d){ return d.district === district; });
+      if(!entry) return;
+      var years = entry.years.slice().sort(function(a,b){ return b.year - a.year; }).slice(0, lookback);
+      btn.textContent = '查詢中…';
+      Promise.all(years.map(function(y){
+        return fetch(KH_BASE + y.file).then(function(r){ return r.json(); }).catch(function(){ return []; });
+      })).then(function(chunks){
+        var records = [].concat.apply([], chunks);
+        var filtered = records.filter(function(r){
+          if(type !== 'all' && r.ty !== type) return false;
+          if(r.flags && r.flags.indexOf('關係人交易') >= 0) return false;
+          return true;
+        });
+        var ups = filtered.map(function(r){ return r.up; }).filter(function(u){ return isFinite(u) && u > 0; });
+        btn.textContent = '🔍 查詢附近行情';
+        $('pdResultWrap').style.display = 'block';
+        if(ups.length < 3){
+          $('pdUpRange').textContent = '—'; $('pdPriceRange').textContent = '樣本不足';
+          $('pdUpMed').textContent = '—'; $('pdCount').textContent = ups.length;
+          $('pdNote').textContent = '此區間/類型樣本數過少（'+ups.length+'筆），建議放寬類型或延長回溯年數。';
+          $('pdTable').innerHTML = '';
+          return;
+        }
+        var q1 = quantile(ups,0.25), q3 = quantile(ups,0.75), med = median(ups);
+        $('pdUpRange').textContent = q1.toFixed(1) + ' ~ ' + q3.toFixed(1) + ' 萬/坪';
+        $('pdUpMed').textContent = med.toFixed(1) + ' 萬/坪';
+        $('pdCount').textContent = ups.length + ' 筆';
+        $('pdPriceRange').textContent = area > 0 ? (Math.round(q1*area) + ' ~ ' + Math.round(q3*area) + ' 萬') : '請輸入坪數';
+        $('pdNote').textContent = district + '・' + (type==='all'?'全部類型':type) + '・近' + lookback + '年，已排除關係人交易樣本。僅供參考，實際開價仍需依樓層/景觀/裝潢調整。';
+
+        var recent = filtered.slice().sort(function(a,b){ return (b.q||'').localeCompare(a.q||''); }).slice(0,8);
+        var rows = ['<tr><th>路段</th><th>類型</th><th>總價</th><th>坪數</th><th>單價</th><th>季別</th></tr>'];
+        recent.forEach(function(r){
+          rows.push('<tr><td>'+r.rd+'</td><td>'+r.ty+'</td><td>'+r.tp.toFixed(0)+'萬</td><td>'+r.area.toFixed(1)+'</td><td>'+r.up.toFixed(1)+'</td><td>'+r.q+'</td></tr>');
+        });
+        $('pdTable').innerHTML = rows.join('');
+      });
+    });
+  });
+
+  // ================================================================
+  // 買方：一般試算
+  // ================================================================
+  function gnCompute(){
+    var price = parseFloat($('gnPrice').value)||0;
+    var down = parseFloat($('gnDown').value)||0;
+    var rate = parseFloat($('gnRate').value)||0;
+    var term = parseInt($('gnTerm').value,10)||30;
+    var grace = parseInt($('gnGrace').value,10)||0;
+    var income = parseFloat($('gnIncome').value)||0;
+
+    var priceD = price*10000, downD = down*10000;
+    var loanD = Math.max(0, priceD-downD);
+    var ltv = priceD>0 ? loanD/priceD*100 : 0;
+    $('gnLtvShow').value = ltv.toFixed(1);
+    $('gnTermVal').textContent = term + ' 年';
+    $('gnGraceVal').textContent = grace + ' 年';
+
+    var mRate = rate/1200;
+    var gracePay = loanD*mRate;
+    var remMonths = (term-grace)*12;
+    var repayPay = remMonths>0 ? (mRate>0 ? loanD*mRate/(1-Math.pow(1+mRate,-remMonths)) : loanD/remMonths) : 0;
+
+    var totalInterest = 0, bal = loanD;
+    for(var y=1; y<=term; y++){
+      if(y <= grace){
+        totalInterest += bal*mRate*12;
+      } else {
+        var rm = (term-y+1)*12;
+        var pay = mRate>0 ? bal*mRate/(1-Math.pow(1+mRate,-rm)) : bal/rm;
+        for(var m=0; m<12; m++){
+          var it = bal*mRate, pr = pay-it;
+          if(pr>bal) pr = bal;
+          bal -= pr; totalInterest += it;
+        }
+      }
+    }
+
+    $('gnLoan').textContent = wanFmt(loanD);
+    $('gnLtv').textContent = ltv.toFixed(1)+'%';
+    $('gnGracePay').textContent = grace>0 ? money(gracePay) : '—';
+    $('gnRepayPay').textContent = money(repayPay);
+    $('gnInterest').textContent = wanFmt(totalInterest);
+    $('gnTotal').textContent = wanFmt(loanD+totalInterest);
+
+    var burdenEl = $('gnBurden');
+    var maxPay = Math.max(gracePay, repayPay);
+    if(income > 0){
+      var mIncome = income*10000/12;
+      var ratio = maxPay/mIncome*100;
+      var cls = ratio<=33.4 ? 'b-good' : (ratio<=50 ? 'b-warn' : 'b-crit');
+      var word = ratio<=33.4 ? '負擔輕鬆' : (ratio<=50 ? '偏高，建議留意' : '吃緊，建議調整條件');
+      burdenEl.className = 'burden ' + cls;
+      burdenEl.innerHTML = '<div class="bd-l">房貸負擔率（'+word+'）<small>以最高月付 '+money(maxPay)+' ÷ 月收入 '+money(mIncome)+' 計</small></div><div class="bd-v num">'+ratio.toFixed(0)+'%</div>';
+    } else {
+      burdenEl.className = 'burden';
+      burdenEl.innerHTML = '<div class="bd-l">房貸負擔率<small>填年所得後自動顯示</small></div><div class="bd-v" style="color:var(--muted)">—</div>';
+    }
+  }
+  ['gnPrice','gnDown','gnRate','gnIncome'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
+  ['gnTerm','gnGrace'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
+  $('gnBtn80').addEventListener('click', function(){
+    var price = parseFloat($('gnPrice').value)||0;
+    $('gnDown').value = Math.round(price*0.2*10)/10;
+    gnCompute();
+  });
+  gnCompute();
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var FAMILY_CAP = { general:1000, newlywed:1200, children:1500 };
+  var CITY_CAP   = { taipei:3500, newtaipei_hsinchu:2500, other:2000 };
+  var CITY_LABEL = { taipei:"台北市", newtaipei_hsinchu:"新北・新竹縣市", other:"其他縣市" };
+  var FAM_LABEL  = { general:"一般", newlywed:"新婚2年內", children:"育有未成年子女" };
+
+  var BASE_RATE = 1.775;
+  var CURVE = [0, 0, 0, 0.125, 0.25, 0.375];
+  function stageRate(year, offset){
+    offset = offset || 0;
+    var inc = year <= 6 ? CURVE[year-1] : 0.5;
+    return BASE_RATE + inc + offset;
+  }
+  function marketRate(){ return BASE_RATE + 0.5; }
+
+  function money(n){
+    if(!isFinite(n)) n = 0;
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function wanFmt(d){
+    if(!isFinite(d)) d = 0;
+    var w = d/10000;
+    return w.toLocaleString('en-US', {maximumFractionDigits: Math.abs(w) >= 100 ? 0 : 1}) + ' 萬';
+  }
+
+  function simulateYearly(loanAmount, termYears, graceYears, offset){
+    offset = offset || 0;
+    var balance = loanAmount;
+    var out = [];
+    for(var y=1; y<=termYears; y++){
+      var rate = stageRate(y, offset);
+      var mRate = rate/1200;
+      var phase = y <= graceYears ? 'grace' : 'repay';
+      var monthlyPayment, yInterest=0, yPrincipal=0;
+      if(phase === 'grace'){
+        monthlyPayment = balance * mRate;
+        yInterest = monthlyPayment * 12;
+        yPrincipal = 0;
+      } else {
+        var remMonths = (termYears - y + 1) * 12;
+        monthlyPayment = mRate > 0
+          ? balance * mRate / (1 - Math.pow(1+mRate, -remMonths))
+          : balance / remMonths;
+        for(var m=0; m<12; m++){
+          var interest = balance * mRate;
+          var principal = monthlyPayment - interest;
+          if(principal > balance) principal = balance;
+          balance -= principal;
+          yInterest += interest;
+          yPrincipal += principal;
+        }
+      }
+      out.push({
+        year:y, rate:rate, monthlyPayment:monthlyPayment,
+        yearlyInterest:yInterest, yearlyPrincipal:yPrincipal,
+        balanceEnd:balance, phase:phase
+      });
+    }
+    return out;
+  }
+
+  function simulateFlat(loanAmount, termYears, graceYears, flatRate){
+    var balance = loanAmount;
+    var totalInterest = 0;
+    var mRate = flatRate/1200;
+    for(var y=1; y<=termYears; y++){
+      if(y <= graceYears){
+        totalInterest += balance * mRate * 12;
+      } else {
+        var remMonths = (termYears - y + 1) * 12;
+        var payment = balance * mRate / (1 - Math.pow(1+mRate, -remMonths));
+        for(var m=0; m<12; m++){
+          var interest = balance * mRate;
+          var principal = payment - interest;
+          if(principal > balance) principal = balance;
+          balance -= principal;
+          totalInterest += interest;
+        }
+      }
+    }
+    return totalInterest;
+  }
+
+  var DEFAULTS = {
+    price: 1200, down: 240, family:'general', city:'newtaipei_hsinchu',
+    term: 30, grace: 3, age: 35, income: 80, baseRate: 1.775, fees: 300
+  };
+  var state = Object.assign({}, DEFAULTS);
+  var feesTouched = false;
+
+  function loadState(){
+    try{
+      var saved = JSON.parse(localStorage.getItem('qa3-state')||'null');
+      if(saved){
+        Object.assign(state, saved);
+        if(typeof saved.fees === 'number' && saved.fees !== DEFAULTS.fees) feesTouched = true;
+      }
+    }catch(e){}
+  }
+  function saveState(){
+    try{ localStorage.setItem('qa3-state', JSON.stringify(state)); }catch(e){}
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var priceEl=$('price'), downEl=$('down'), ltvShow=$('ltvShow'), ltvNote=$('ltvNote'),
+      cityEl=$('city'), capNote=$('capNote'), termEl=$('term'), termVal=$('termVal'),
+      graceEl=$('grace'), graceVal=$('graceVal'), ageEl=$('age'), incomeEl=$('income'),
+      baseRateEl=$('baseRate'), feesEl=$('fees');
+
+  function applyStateToInputs(){
+    state.grace = Math.min(state.grace, 5, state.term);
+    graceEl.max = Math.min(5, state.term);
+    priceEl.value = state.price; downEl.value = state.down; cityEl.value = state.city;
+    termEl.value = state.term; graceEl.value = state.grace; ageEl.value = state.age; incomeEl.value = state.income;
+    baseRateEl.value = state.baseRate; feesEl.value = state.fees;
+    feesEl.classList.toggle('is-default', !feesTouched);
+    document.querySelectorAll('#famSeg button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.v === state.family);
+    });
+    termVal.textContent = state.term + ' 年';
+    graceVal.textContent = state.grace + ' 年';
+  }
+
+  // ---------- 新青安內部 5 分頁（掛在 #qaNav，非全站頂層 nav） ----------
+  document.querySelectorAll('#qaNav button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#qaNav button').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('#buyerQingan .panel').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelector('#buyerQingan .panel[data-panel="'+btn.dataset.panel+'"]').classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('#famSeg button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#famSeg button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.family = btn.dataset.v;
+      recompute();
+    });
+  });
+
+  [priceEl, downEl].forEach(function(el){
+    el.addEventListener('input', function(){
+      state.price = parseFloat(priceEl.value)||0;
+      state.down = parseFloat(downEl.value)||0;
+      recompute();
+    });
+  });
+  cityEl.addEventListener('change', function(){ state.city = cityEl.value; recompute(); });
+  termEl.addEventListener('input', function(){
+    state.term = parseInt(termEl.value,10);
+    if(state.grace > state.term) state.grace = state.term;
+    graceEl.max = Math.min(5, state.term);
+    graceEl.value = state.grace;
+    graceVal.textContent = state.grace + ' 年';
+    termVal.textContent = state.term + ' 年';
+    recompute();
+  });
+  graceEl.addEventListener('input', function(){
+    state.grace = parseInt(graceEl.value,10);
+    graceVal.textContent = state.grace + ' 年';
+    recompute();
+  });
+  ageEl.addEventListener('input', function(){ state.age = parseFloat(ageEl.value)||0; recompute(); });
+  incomeEl.addEventListener('input', function(){ state.income = parseFloat(incomeEl.value)||0; recompute(); });
+  document.getElementById('btn80').addEventListener('click', function(){
+    state.down = Math.round(state.price * 0.2 * 10) / 10;
+    downEl.value = state.down;
+    recompute();
+  });
+  baseRateEl.addEventListener('input', function(){
+    var v = parseFloat(baseRateEl.value);
+    state.baseRate = (isFinite(v) && v >= 0) ? v : 1.775;
+    recompute();
+  });
+  feesEl.addEventListener('input', function(){
+    var v = parseFloat(feesEl.value);
+    state.fees = (isFinite(v) && v >= 0) ? v : 0;
+    feesTouched = true;
+    feesEl.classList.remove('is-default');
+    recompute();
+  });
+  $('btnReset').addEventListener('click', function(){
+    state = Object.assign({}, DEFAULTS);
+    feesTouched = false;
+    try{ localStorage.removeItem('qa3-state'); }catch(e){}
+    applyStateToInputs();
+    selectedYear = 1;
+    recompute();
+    document.querySelector('main').scrollTop = 0;
+  });
+
+  var selectedYear = 1;
+
+  function renderChart(records){
+    var chart = $('chart'), axis = $('chartAxis');
+    chart.innerHTML = ''; axis.innerHTML = '';
+    var max = Math.max.apply(null, records.map(function(r){ return r.monthlyPayment; }));
+    if(!(max > 0)) max = 1;
+    var lastPhase = null, lastRate = null;
+    records.forEach(function(r){
+      var col = document.createElement('div');
+      col.className = 'bar-col';
+
+      var showTag = (r.phase !== lastPhase) || (r.rate !== lastRate);
+      var tag = document.createElement('div');
+      tag.className = 'bar-tag';
+      tag.textContent = showTag ? r.rate.toFixed(2)+'%' : ' ';
+      col.appendChild(tag);
+
+      var bar = document.createElement('div');
+      bar.className = 'bar ' + (r.phase === 'repay' ? 'repay' : '');
+      var h = Math.max(4, (r.monthlyPayment/max)*100);
+      bar.style.height = h + 'px';
+      if(r.year === selectedYear) bar.classList.add('selected');
+      bar.addEventListener('click', function(){ selectedYear = r.year; renderChart(records); renderYearDetail(records); });
+      col.appendChild(bar);
+
+      chart.appendChild(col);
+
+      var tick = document.createElement('div');
+      tick.className = 'axis-tick';
+      tick.textContent = (r.year % 5 === 0 || r.year === 1) ? r.year : '';
+      axis.appendChild(tick);
+
+      lastPhase = r.phase; lastRate = r.rate;
+    });
+  }
+
+  function renderYearDetail(records){
+    var r = records.find(function(x){ return x.year === selectedYear; }) || records[0];
+    var el = $('yearDetail');
+    el.innerHTML =
+      '<div class="dc-head"><b>第 '+r.year+' 年</b><span>'+(r.phase==='grace'?'寬限期・只繳息':'本息攤還')+'</span></div>' +
+      '<div class="detail-grid">' +
+        '<div><div class="dg-l">適用利率</div><div class="dg-v">'+r.rate.toFixed(3)+'%</div></div>' +
+        '<div><div class="dg-l">月繳金額</div><div class="dg-v">'+money(r.monthlyPayment)+'</div></div>' +
+        '<div><div class="dg-l">年底餘額</div><div class="dg-v">'+money(r.balanceEnd)+'</div></div>' +
+      '</div>';
+  }
+
+  function renderYearTable(records){
+    var rows = ['<tr><th>年</th><th>利率</th><th>月繳</th><th>年繳利息</th><th>年繳本金</th><th>年底餘額</th></tr>'];
+    records.forEach(function(r){
+      rows.push('<tr><td>第'+r.year+'年'+(r.phase==='grace'?' <span style="color:var(--muted);font-size:9.5px">寬限</span>':'')+'</td>' +
+        '<td>'+r.rate.toFixed(3)+'%</td>' +
+        '<td>'+money(r.monthlyPayment)+'</td>' +
+        '<td>'+money(r.yearlyInterest)+'</td>' +
+        '<td>'+money(r.yearlyPrincipal)+'</td>' +
+        '<td>'+money(r.balanceEnd)+'</td></tr>');
+    });
+    $('yearTable').innerHTML = rows.join('');
+  }
+
+  function recompute(){
+    saveState();
+    BASE_RATE = state.baseRate;
+    var feesM = state.fees || 0;
+
+    var priceD = state.price * 10000;
+    var downD = state.down * 10000;
+    var loanD = Math.max(0, priceD - downD);
+    var ltv = priceD > 0 ? (loanD/priceD*100) : 0;
+    var termY = state.term, graceY = Math.min(state.grace, termY);
+
+    ltvShow.value = ltv.toFixed(1);
+
+    var famCapD = FAMILY_CAP[state.family] * 10000;
+    var cityCapW = CITY_CAP[state.city];
+    var ltvNoteText = '最高可貸 8 成；目前 ' + ltv.toFixed(1) + '%';
+    ltvNote.textContent = ltvNoteText;
+    ltvNote.classList.toggle('over', ltv > 80);
+
+    var capMsgs = [];
+    if(loanD > famCapD) capMsgs.push('貸款金額超過「'+FAM_LABEL[state.family]+'」額度上限 '+FAMILY_CAP[state.family]+' 萬');
+    if(state.price > cityCapW) capMsgs.push('房屋總價超過「'+CITY_LABEL[state.city]+'」上限 '+cityCapW+' 萬');
+    capNote.textContent = capMsgs.length ? capMsgs.join('；') : ('額度上限 '+FAMILY_CAP[state.family]+' 萬・房價上限 '+cityCapW+' 萬，目前皆符合');
+    capNote.classList.toggle('over', capMsgs.length > 0);
+
+    var records = simulateYearly(loanD, termY, graceY, 0);
+    $('hdrLoan').textContent = wanFmt(loanD);
+    $('hdrRate').textContent = records[0].rate.toFixed(3)+'%';
+    $('hdrPay').textContent = money(records[0].monthlyPayment + feesM);
+
+    var mkt = marketRate();
+    var totalInterest = records.reduce(function(s,r){ return s + r.yearlyInterest; }, 0);
+    var flatInterest = simulateFlat(loanD, termY, graceY, mkt);
+    var savings = flatInterest - totalInterest;
+    $('savingsLabel').textContent = '比一般房貸（'+mkt.toFixed(3)+'% 一段式）省下利息';
+
+    $('savingsVal').textContent = wanFmt(savings);
+    $('kLoan').textContent = wanFmt(loanD);
+    $('kLtv').textContent = ltv.toFixed(1)+'%';
+    $('kInterest').textContent = wanFmt(totalInterest);
+    $('kTotal').textContent = wanFmt(loanD + totalInterest);
+
+    var burdenEl = $('burden');
+    var maxPay = records.reduce(function(m,r){ return Math.max(m, r.monthlyPayment); }, 0) + feesM;
+    if(state.income > 0){
+      var mIncome = state.income * 10000 / 12;
+      var ratio = maxPay / mIncome * 100;
+      var cls = ratio <= 33.4 ? 'b-good' : (ratio <= 50 ? 'b-warn' : 'b-crit');
+      var word = ratio <= 33.4 ? '負擔輕鬆' : (ratio <= 50 ? '偏高，建議留意' : '吃緊，建議調整條件');
+      var feeTxt = feesM > 0 ? '（含雜費 '+money(feesM)+'）' : '';
+      burdenEl.className = 'burden ' + cls;
+      burdenEl.innerHTML = '<div class="bd-l">房貸負擔率（'+word+'）<small>以最高月繳 '+money(maxPay)+feeTxt+' ÷ 月收入 '+money(mIncome)+' 計</small></div>' +
+        '<div class="bd-v num">'+ratio.toFixed(0)+'%</div>';
+    } else {
+      burdenEl.className = 'burden';
+      burdenEl.innerHTML = '<div class="bd-l">房貸負擔率<small>到「快篩」輸入年所得後自動顯示</small></div><div class="bd-v" style="color:var(--muted)">—</div>';
+    }
+
+    var graceAlert = $('graceAlert');
+    if(graceY > 0 && graceY < termY){
+      var graceRec = records[graceY-1];
+      var firstRepay = records[graceY];
+      graceAlert.style.display = 'flex';
+      $('gaFrom').textContent = money(graceRec.monthlyPayment);
+      $('gaTo').textContent = money(firstRepay.monthlyPayment);
+    } else {
+      graceAlert.style.display = 'none';
+    }
+
+    if(selectedYear > termY) selectedYear = 1;
+    renderChart(records);
+    renderYearDetail(records);
+    renderYearTable(records);
+
+    renderEligibility(loanD, priceD, ltv, famCapD, cityCapW, termY);
+    renderStress(loanD, termY, graceY);
+
+    lastCalc = {
+      loanD:loanD, ltv:ltv, records:records, totalInterest:totalInterest,
+      totalRepay:loanD+totalInterest, savings:savings, termY:termY, graceY:graceY,
+      family:FAM_LABEL[state.family], city:CITY_LABEL[state.city], price:state.price,
+      feesM:feesM, mkt:mkt
+    };
+  }
+
+  function eligRow(pass, title, sub){
+    return '<div class="elig-row"><div class="chip '+(pass?'pass':'fail')+'">'+(pass?'✓':'✕')+'</div>' +
+      '<div class="et"><b>'+title+'</b><small>'+sub+'</small></div></div>';
+  }
+
+  function renderEligibility(loanD, priceD, ltv, famCapD, cityCapW, termY){
+    var checks = [];
+    var ageTermOk = (state.age + termY) <= 80;
+    checks.push({pass:ageTermOk, title:'年齡＋貸款年限 ≤ 80', sub: state.age+' 歲 ＋ '+termY+' 年 = '+(state.age+termY)});
+    var ageOk = state.age < 50;
+    checks.push({pass:ageOk, title:'申貸時未滿 50 歲', sub: state.age+' 歲'});
+    var incomeOk = state.income <= 200;
+    checks.push({pass:incomeOk, title:'年所得 ≤ 200 萬', sub: state.income+' 萬/年'});
+    var priceOk = state.price <= cityCapW;
+    checks.push({pass:priceOk, title:'房價 ≤ '+CITY_LABEL[state.city]+'上限', sub: state.price+' 萬 / 上限 '+cityCapW+' 萬'});
+    var capOk = loanD <= famCapD;
+    checks.push({pass:capOk, title:'貸款金額 ≤ '+FAM_LABEL[state.family]+'額度上限', sub: money(loanD)+' / 上限 '+(famCapD/10000)+' 萬'});
+    var ltvOk = ltv <= 80;
+    checks.push({pass:ltvOk, title:'貸款成數 ≤ 8 成', sub: ltv.toFixed(1)+'%'});
+
+    $('eligList').innerHTML = checks.map(function(c){ return eligRow(c.pass, c.title, c.sub); }).join('');
+    var allPass = checks.every(function(c){ return c.pass; });
+    var summary = $('eligSummary');
+    summary.className = 'elig-summary ' + (allPass ? 'all-pass' : 'some-fail');
+    summary.textContent = allPass ? '✓ 符合新青安 3.0 申貸資格' : '⚠ 有項目未通過，請與客戶確認';
+  }
+
+  function stressRow(label, val, delta, cls){
+    return '<div class="stress-row '+cls+'"><div class="sr-l"><i></i>'+label+'</div>' +
+      '<div class="sr-v num">'+money(val)+(delta?'<small>+'+money(delta)+'/月</small>':'<small>目前</small>')+'</div></div>';
+  }
+
+  function renderStress(loanD, termY, graceY){
+    var refYearGrace = graceY < termY ? graceY + 1 : 1;
+    var base0 = simulateYearly(loanD, termY, graceY, 0);
+    var base1 = simulateYearly(loanD, termY, graceY, 0.25);
+    var base2 = simulateYearly(loanD, termY, graceY, 0.5);
+    $('stressGraceTitle').textContent = graceY > 0
+      ? '寬限期結束後首年（第'+refYearGrace+'年）月繳'
+      : '第1年月繳';
+    var g0 = base0[refYearGrace-1].monthlyPayment, g1 = base1[refYearGrace-1].monthlyPayment, g2 = base2[refYearGrace-1].monthlyPayment;
+    $('stressGrace').innerHTML =
+      stressRow('目前補貼利率', g0, 0, '') +
+      stressRow('+1碼（0.25%）', g1, g1-g0, 'r1') +
+      stressRow('+2碼（0.50%）', g2, g2-g0, 'r2');
+
+    var refYearLater = Math.min(7, termY);
+    $('stressLaterTitle').textContent = termY >= 7
+      ? '補貼結束後（第7年起）月繳'
+      : '最後階段（第'+refYearLater+'年）月繳';
+    var l0 = base0[refYearLater-1].monthlyPayment, l1 = base1[refYearLater-1].monthlyPayment, l2 = base2[refYearLater-1].monthlyPayment;
+    $('stressLater').innerHTML =
+      stressRow('補貼結束基準利率', l0, 0, '') +
+      stressRow('+1碼（0.25%）', l1, l1-l0, 'r1') +
+      stressRow('+2碼（0.50%）', l2, l2-l0, 'r2');
+  }
+
+  var lastCalc = null;
+
+  var legState = { orig:1000, term:40, year:113, month:1, grace:0 };
+  try{ var ls = JSON.parse(localStorage.getItem('qa3-legacy')||'null'); if(ls) Object.assign(legState, ls); }catch(e){}
+
+  var legOrig=$('legOrig'), legTerm=$('legTerm'), legYear=$('legYear'), legMonth=$('legMonth'),
+      legGrace=$('legGrace'), legGraceVal=$('legGraceVal');
+
+  function saveLeg(){ try{ localStorage.setItem('qa3-legacy', JSON.stringify(legState)); }catch(e){} }
+
+  var CUT_ABS = 2026*12 + 7;
+
+  function simulateLegacy(orig, termY, graceY, minguoYear, month){
+    var savedBase = BASE_RATE; BASE_RATE = 1.775;
+    var result = _simLegacy(orig, termY, graceY, minguoYear, month);
+    BASE_RATE = savedBase;
+    return result;
+  }
+  function _simLegacy(orig, termY, graceY, minguoYear, month){
+    var loanD = orig * 10000;
+    var startAbs = (1911 + minguoYear)*12 + (month-1);
+    var totalMonths = termY*12;
+    var monthsElapsed = Math.max(0, Math.min(CUT_ABS - startAbs, totalMonths));
+    var paidOff = monthsElapsed >= totalMonths;
+
+    var bal = loanD, payBefore = 0, curPay = 0;
+    for(var i=0; i<monthsElapsed; i++){
+      var ly = Math.floor(i/12)+1;
+      var inGrace = ly <= graceY;
+      var mRate = 1.775/1200;
+      var remMonths = totalMonths - i;
+      if(inGrace){
+        curPay = bal*mRate;
+      } else {
+        if(i%12===0 || curPay===0) curPay = mRate>0 ? bal*mRate/(1-Math.pow(1+mRate,-remMonths)) : bal/remMonths;
+        var interest = bal*mRate, principal = curPay - interest;
+        if(principal>bal) principal = bal;
+        bal -= principal;
+      }
+      if(i === monthsElapsed-1) payBefore = curPay;
+    }
+    var balanceAtCutover = bal;
+
+    var rows = [], payAfterFirst = null;
+    var mi = monthsElapsed;
+    while(mi < totalMonths){
+      var loanYear = Math.floor(mi/12)+1;
+      var inG = loanYear <= graceY;
+      var rate = stageRate(loanYear);
+      var mR = rate/1200;
+      var remM = totalMonths - mi;
+      var pay = inG ? bal*mR : (mR>0 ? bal*mR/(1-Math.pow(1+mR,-remM)) : bal/remM);
+      rows.push({ loanYear:loanYear, rate:rate, monthlyPayment:pay, phase: inG?'grace':'repay' });
+      if(payAfterFirst===null) payAfterFirst = pay;
+      var monthsThisYear = Math.min(12 - (mi%12), totalMonths - mi);
+      for(var k=0;k<monthsThisYear;k++){
+        if(!inG){
+          var it = bal*mR, pr = pay - it;
+          if(pr>bal) pr = bal;
+          bal -= pr;
+        }
+        mi++;
+      }
+    }
+    if(payBefore === 0) payBefore = payAfterFirst || 0;
+    var currentLoanYear = Math.floor(monthsElapsed/12)+1;
+
+    return {
+      paidOff:paidOff, payBefore:payBefore, payAfter:(payAfterFirst||0),
+      currentLoanYear:currentLoanYear, balanceAtCutover:balanceAtCutover, rows:rows
+    };
+  }
+
+  function renderLegacy(){
+    var r = simulateLegacy(legState.orig, legState.term, legState.grace, legState.year, legState.month);
+    var hero = $('legacyHero'), detail = $('legacyDetail'), tbl = $('legacyTable');
+
+    if(r.paidOff){
+      hero.innerHTML = '<div class="lh-box" style="grid-column:1/-1"><div class="lh-l">此貸款年限已到期</div><div class="lh-v" style="font-size:15px">請確認撥款年月與年限</div></div>';
+      detail.innerHTML = ''; tbl.innerHTML = '';
+      return;
+    }
+
+    var delta = r.payAfter - r.payBefore;
+    hero.innerHTML =
+      '<div class="lh-box"><div class="lh-l">8/1 前月繳</div><div class="lh-v num">'+money(r.payBefore)+'</div><div class="lh-r">補貼利率 1.775%</div></div>' +
+      '<div class="lh-arrow">→</div>' +
+      '<div class="lh-box after"><div class="lh-l">8/1 起月繳</div><div class="lh-v num">'+money(r.payAfter)+'</div><div class="lh-r">'+stageRate(r.currentLoanYear).toFixed(3)+'%</div></div>';
+
+    var msg;
+    if(r.currentLoanYear <= 3){
+      msg = '此客戶補貼<b>尚未滿 3 年</b>，8/1 暫時不受影響；等補貼滿 3 年後（第 4 年起）才會開始逐年遞減。下表為未來走勢。';
+    } else {
+      msg = '此客戶補貼<b>已滿 3 年</b>，8/1 起月繳增加 <b>'+money(delta)+'</b>／月（約 '+money(delta*12)+'／年），並會逐年再升，直到補貼歸零（第 7 年、利率 2.275%）。';
+    }
+    detail.innerHTML = '<div style="font-size:13.5px;font-weight:600;line-height:1.6;color:var(--ink-soft)">'+msg+'</div>';
+
+    var head = '<tr><th>貸款第N年</th><th>利率</th><th>月繳</th><th>與8/1前差額</th></tr>';
+    var body = r.rows.map(function(row){
+      var d = row.monthlyPayment - r.payBefore;
+      var dTxt = Math.abs(d) < 1 ? '—' : (d>0?'+':'')+money(d);
+      return '<tr><td>第'+row.loanYear+'年'+(row.phase==='grace'?' <span style="color:var(--muted);font-size:9.5px">寬限</span>':'')+'</td>' +
+        '<td>'+row.rate.toFixed(3)+'%</td><td>'+money(row.monthlyPayment)+'</td>' +
+        '<td style="color:'+(d>1?'var(--crit)':'var(--muted)')+'">'+dTxt+'</td></tr>';
+    }).join('');
+    tbl.innerHTML = head + body;
+  }
+
+  function applyLegInputs(){
+    legState.grace = Math.min(legState.grace, 5, legState.term);
+    legGrace.max = Math.min(5, legState.term);
+    legOrig.value = legState.orig; legTerm.value = legState.term;
+    legYear.value = legState.year; legMonth.value = legState.month;
+    legGrace.value = legState.grace; legGraceVal.textContent = legState.grace + ' 年';
+  }
+  [legOrig, legTerm, legYear, legMonth].forEach(function(el){
+    el.addEventListener('input', function(){
+      legState.orig = parseFloat(legOrig.value)||0;
+      legState.term = Math.max(1, parseInt(legTerm.value,10)||1);
+      legState.year = parseInt(legYear.value,10)||113;
+      legState.month = Math.min(12, Math.max(1, parseInt(legMonth.value,10)||1));
+      if(legState.grace > legState.term) legState.grace = legState.term;
+      legGrace.max = Math.min(5, legState.term);
+      legGrace.value = legState.grace; legGraceVal.textContent = legState.grace + ' 年';
+      saveLeg(); renderLegacy();
+    });
+  });
+  legGrace.addEventListener('input', function(){
+    legState.grace = parseInt(legGrace.value,10);
+    legGraceVal.textContent = legState.grace + ' 年';
+    saveLeg(); renderLegacy();
+  });
+
+  function drawShot(){
+    if(!lastCalc) return null;
+    var c = $('shotCanvas'), S = 2, W = 760, pad = 40;
+    var recs = lastCalc.records;
+
+    var chartH = 150, headerH = 150, figH = 190, noteH = 70;
+    var H = headerH + figH + 60 + chartH + 90 + noteH;
+    c.width = W*S; c.height = H*S;
+    var ctx = c.getContext('2d');
+    ctx.scale(S,S);
+    var FONT = '"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
+    var MONO = '"SF Mono",ui-monospace,Consolas,monospace';
+
+    ctx.fillStyle = '#F6F3E8'; ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = '#10201A'; ctx.fillRect(0,0,W,headerH);
+    ctx.fillStyle = '#D9AE5C'; ctx.font = '700 15px '+MONO;
+    ctx.fillText('新青安 3.0 貸款試算', pad, 46);
+    ctx.fillStyle = '#F6F3E8'; ctx.font = '800 30px '+FONT;
+    ctx.fillText('月繳與利息一覽', pad, 86);
+    var d = new Date();
+    var dateStr = d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();
+    ctx.fillStyle = 'rgba(246,243,232,.6)'; ctx.font = '600 14px '+FONT;
+    ctx.fillText('試算日 '+dateStr+'　·　'+lastCalc.city+'　·　'+lastCalc.family, pad, 118);
+
+    var gy = headerH + 30, gx = pad, gw = (W - pad*2 - 20)/2, gh = 74;
+    function fig(x,y,label,val,accent){
+      ctx.fillStyle = accent ? 'rgba(184,137,43,.14)' : '#EDE8DA';
+      roundRect(ctx,x,y,gw,gh,12); ctx.fill();
+      ctx.fillStyle = '#5C6E60'; ctx.font = '600 14px '+FONT;
+      ctx.fillText(label, x+16, y+27);
+      ctx.fillStyle = accent ? '#6B4E17' : '#10201A'; ctx.font = '800 25px '+MONO;
+      ctx.fillText(val, x+16, y+58);
+    }
+    var feesM = lastCalc.feesM || 0;
+    fig(gx, gy, '貸款金額', wanFmt(lastCalc.loanD), true);
+    fig(gx+gw+20, gy, feesM>0?'首年月繳(含雜費)':'首年月繳', money(recs[0].monthlyPayment + feesM), false);
+    fig(gx, gy+gh+14, '總繳利息', wanFmt(lastCalc.totalInterest), false);
+    fig(gx+gw+20, gy+gh+14, '比一般房貸省', wanFmt(lastCalc.savings), true);
+
+    var cY = gy + figH + 20;
+    ctx.fillStyle = '#5C6E60'; ctx.font = '700 15px '+FONT;
+    ctx.fillText('逐年月繳走勢', pad, cY);
+    var cx0 = pad, cy0 = cY + 20, cw = W - pad*2, ch = chartH;
+    var maxPay = recs.reduce(function(m,r){ return Math.max(m,r.monthlyPayment); },1);
+    var bw = cw / recs.length;
+    recs.forEach(function(r,i){
+      var bh = Math.max(3, (r.monthlyPayment/maxPay)*(ch-24));
+      ctx.fillStyle = r.phase==='grace' ? '#E4CD93' : '#B8892B';
+      var bx = cx0 + i*bw + 1, by = cy0 + ch - bh;
+      roundRect(ctx, bx, by, Math.max(2,bw-2), bh, 2); ctx.fill();
+    });
+    ctx.fillStyle = '#898781'; ctx.font = '600 11px '+MONO;
+    [1, lastCalc.graceY>0?lastCalc.graceY+1:0, recs.length].forEach(function(yr){
+      if(!yr) return;
+      var i = yr-1;
+      ctx.fillText('第'+yr+'年', cx0 + i*bw, cy0 + ch + 16);
+    });
+
+    var nY = cy0 + ch + 44;
+    if(lastCalc.graceY>0 && lastCalc.graceY < lastCalc.termY){
+      var gFrom = recs[lastCalc.graceY-1].monthlyPayment, gTo = recs[lastCalc.graceY].monthlyPayment;
+      ctx.fillStyle = 'rgba(184,121,15,.14)'; roundRect(ctx,pad,nY,W-pad*2,44,10); ctx.fill();
+      ctx.fillStyle = '#b8790f'; ctx.font = '700 14px '+FONT;
+      ctx.fillText('寬限期後月繳：'+money(gFrom)+' → '+money(gTo), pad+16, nY+28);
+      nY += 60;
+    }
+
+    ctx.fillStyle = '#898781'; ctx.font = '600 12px '+FONT;
+    ctx.fillText('本試算僅供參考，實際利率、額度與月繳以銀行核貸為準。', pad, H - 30);
+    ctx.fillStyle = '#B8892B'; ctx.font = '700 12px '+FONT;
+    ctx.fillText('永慶不動產　博愛凱璿加盟店', W - pad - ctx.measureText('永慶不動產　博愛凱璿加盟店').width, H - 30);
+
+    return c.toDataURL('image/png');
+  }
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  $('btnShot').addEventListener('click', function(){
+    var url = drawShot();
+    if(!url) return;
+    $('shotImg').src = url;
+    $('shotOverlay').style.display = 'flex';
+  });
+  $('shotClose').addEventListener('click', function(){ $('shotOverlay').style.display='none'; });
+  $('shotOverlay').addEventListener('click', function(e){ if(e.target === this) this.style.display='none'; });
+
+  loadState();
+  applyStateToInputs();
+  recompute();
+  applyLegInputs();
+  renderLegacy();
+})();
+</script>
+
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}</script>
+</body>
+</html>
