@@ -1255,6 +1255,21 @@
     gnCompute();
   });
   gnCompute();
+
+  // ================================================================
+  // 點進數字欄位＝整串反白，直接打新數字就取代預設值（免按刪除）
+  // 綁在 document 上用捕獲階段，之後動態產生的欄位也一體適用
+  // ================================================================
+  document.addEventListener('focusin', function(e){
+    var el = e.target;
+    if(!el || el.tagName !== 'INPUT') return;
+    if(el.type !== 'number' && el.type !== 'text') return;
+    if(el.readOnly) return;
+    // iOS Safari 要等 focus 事件跑完才選得起來，故延到下一輪
+    setTimeout(function(){
+      try{ el.select(); }catch(err){}
+    }, 0);
+  });
 })();
 </script>
 
