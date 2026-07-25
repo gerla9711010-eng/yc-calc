@@ -1266,29 +1266,26 @@
       && (el.type === 'number' || el.type === 'text')
       && !el.readOnly && !el.disabled;
   }
-  var pendingSelectEl = null;
+  // 這次 focus 進來後還沒打過字的欄位；第一個字會把舊值整個換掉
+  var virginField = null;
 
   document.addEventListener('focusin', function(e){
     var el = e.target;
     if(!isEditableNumField(el)) return;
-    pendingSelectEl = el;
+    virginField = el;
+    // 桌面版順便反白，讓使用者看得出「打字就會取代」
     try{ el.select(); }catch(err){}
-    // iOS Safari 需要延一輪才選得起來，補一次
-    setTimeout(function(){
-      if(document.activeElement === el){
-        try{ el.select(); }catch(err){}
-      }
-    }, 0);
   });
+  document.addEventListener('focusout', function(){ virginField = null; });
 
-  // 擋掉 focus 之後那一次 mouseup 的預設行為（否則選取會被收成游標）
-  document.addEventListener('mouseup', function(e){
-    if(pendingSelectEl && e.target === pendingSelectEl){
-      e.preventDefault();
-      pendingSelectEl = null;
+  // 真正保證取代行為：不依賴選取狀態，iOS/Android 都一致
+  document.addEventListener('beforeinput', function(e){
+    if(e.target !== virginField) return;
+    virginField = null;              // 只有第一個字取代，之後正常編輯
+    if(e.inputType === 'insertText'){
+      e.target.value = '';
     }
   });
-  document.addEventListener('focusout', function(){ pendingSelectEl = null; });
 })();
 </script>
 
