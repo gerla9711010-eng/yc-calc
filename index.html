@@ -1120,7 +1120,7 @@
       var years = entry.years.slice().sort(function(a,b){ return b.year - a.year; }).slice(0, lookback);
       btn.textContent = '查詢中…';
       Promise.all(years.map(function(y){
-        return fetch(KH_BASE + y.file).then(function(r){ return r.json(); }).catch(function(){ return []; });
+        return fetch(KH_BASE + 'data/' + y.file).then(function(r){ return r.json(); }).catch(function(){ return []; });
       })).then(function(chunks){
         var records = [].concat.apply([], chunks);
         var filtered = records.filter(function(r){
