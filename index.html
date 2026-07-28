@@ -893,8 +893,42 @@
 
     <!-- ============ 實價登錄 ============ -->
     <section class="topview" data-top="market" id="marketView" style="display:none">
-      <div class="cap-note" style="margin-bottom:12px;">六都/全台量能 + 高雄38區細部行情，每日自動更新。</div>
-      <div class="iframe-wrap"><iframe id="marketFrame" title="實價登錄行情看板" loading="lazy"></iframe></div>
+      <div class="seg subseg" id="marketSubSeg">
+        <button data-v="reg" class="active">實價登錄</button>
+        <button data-v="intel">內部成交</button>
+      </div>
+
+      <div class="subpanel active" data-sub="reg">
+        <div class="cap-note" style="margin-bottom:12px;">六都/全台量能 + 高雄38區細部行情，每日自動更新。</div>
+        <div class="iframe-wrap"><iframe id="marketFrame" title="實價登錄行情看板" loading="lazy"></iframe></div>
+      </div>
+
+      <div class="subpanel" data-sub="intel">
+        <div class="cap-note" style="margin-bottom:12px;">永慶/凱璿內部成交，比實價登錄快幾個月，每週二自動更新，僅供參考。</div>
+        <div class="card">
+          <h2 id="intelWeekTitle">本週成交</h2>
+          <div class="kpi-grid">
+            <div class="kpi accent"><div class="k-label">成交件數</div><div class="k-val num" id="intelCount">—</div></div>
+            <div class="kpi"><div class="k-label">週變化</div><div class="k-val num" id="intelWow">—</div></div>
+          </div>
+          <p class="cap-note" id="intelTypeDist" style="margin-top:10px;">型態：—</p>
+          <p class="cap-note" id="intelDistDist">行政區：—</p>
+        </div>
+        <div class="card">
+          <h2>逐筆明細</h2>
+          <div class="row">
+            <div>
+              <label for="intelDistrictFilter">行政區</label>
+              <select id="intelDistrictFilter"><option value="">全部</option></select>
+            </div>
+            <div>
+              <label for="intelTypeFilter">型態</label>
+              <select id="intelTypeFilter"><option value="">全部</option></select>
+            </div>
+          </div>
+          <div class="tbl-scroll"><table id="intelTable"></table></div>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -967,15 +1001,101 @@
     if(!f.src) f.src = 'https://gerla9711010-eng.github.io/kh-market/';
   }
 
+  var currentMarketSub = 'reg';
+
   function setTop(top){
     topNavButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.top===top); });
     topViews.forEach(function(v){ v.style.display = (v.dataset.top===top) ? '' : 'none'; });
     $('hdrTitle').textContent = TOP_TITLES[top];
     updateHeaderStrip(top);
-    if(top==='market') ensureMarketFrame();
+    if(top==='market'){
+      if(currentMarketSub==='reg') ensureMarketFrame();
+      else loadIntelData();
+    }
     document.querySelector('main').scrollTop = 0;
     try{ localStorage.setItem('yc-top', top); }catch(e){}
   }
+
+  // ---------- 實價登錄子頁籤（實登 iframe / 內部成交） ----------
+  var marketSubButtons = document.querySelectorAll('#marketSubSeg button');
+  marketSubButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      marketSubButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('#marketView .subpanel').forEach(function(p){ p.classList.remove('active'); });
+      document.querySelector('#marketView .subpanel[data-sub="'+btn.dataset.v+'"]').classList.add('active');
+      currentMarketSub = btn.dataset.v;
+      if(currentMarketSub==='reg') ensureMarketFrame();
+      else loadIntelData();
+    });
+  });
+
+  // ================================================================
+  // 內部成交（bdinfo.py 每週二自動發布，讀 kh-market repo 底下的 intel JSON）
+  // ================================================================
+  var INTEL_URL = 'https://gerla9711010-eng.github.io/kh-market/data/intel/latest.json';
+  var intelData = null, intelLoaded = false;
+
+  function renderIntelSummary(d){
+    var ws = (d.weekStart||'').slice(5).replace('-','/');
+    var we = (d.weekEnd||'').slice(5).replace('-','/');
+    $('intelWeekTitle').textContent = '本週成交（' + ws + '~' + we + '）';
+    $('intelCount').textContent = d.summary.count + ' 件';
+    var wow = d.summary.wow;
+    if(wow){
+      var prev = wow[1], pct = wow[3];
+      var arrow = pct>0 ? '↑' : (pct<0 ? '↓' : '→');
+      $('intelWow').textContent = arrow + Math.round(Math.abs(pct)) + '%（上週 ' + prev + ' 件）';
+    } else {
+      $('intelWow').textContent = '—';
+    }
+    var typeParts = Object.keys(d.summary.byType).map(function(k){ return k+' '+d.summary.byType[k]; });
+    $('intelTypeDist').textContent = '型態：' + (typeParts.join('、') || '—');
+    var distParts = Object.keys(d.summary.byDistrict).map(function(k){ return k+' '+d.summary.byDistrict[k]; });
+    $('intelDistDist').textContent = '行政區：' + (distParts.join('、') || '—');
+  }
+
+  function populateIntelFilters(d){
+    var uniq = function(arr){ return Array.from(new Set(arr)).filter(Boolean).sort(function(a,b){ return a.localeCompare(b,'zh-Hant'); }); };
+    var districts = uniq(d.records.map(function(r){ return r.district; }));
+    var types = uniq(d.records.map(function(r){ return r.ptype; }));
+    $('intelDistrictFilter').innerHTML = '<option value="">全部</option>' + districts.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('');
+    $('intelTypeFilter').innerHTML = '<option value="">全部</option>' + types.map(function(x){ return '<option value="'+x+'">'+x+'</option>'; }).join('');
+  }
+
+  function renderIntelTable(){
+    if(!intelData) return;
+    var dist = $('intelDistrictFilter').value;
+    var type = $('intelTypeFilter').value;
+    var rows = intelData.records.filter(function(r){
+      if(dist && r.district !== dist) return false;
+      if(type && r.ptype !== type) return false;
+      return true;
+    }).sort(function(a,b){ return (b.dealDate||'').localeCompare(a.dealDate||''); });
+    var out = ['<tr><th>成交日</th><th>行政區</th><th>社區</th><th>型態</th><th>屋齡</th><th>坪數</th><th>總價</th></tr>'];
+    rows.forEach(function(r){
+      out.push('<tr><td>'+(r.dealDate||'').slice(5)+'</td><td>'+r.district+'</td><td>'+(r.community||'—')+'</td><td>'+r.ptype+
+        '</td><td>'+(r.years!=null ? r.years+'年' : '—')+'</td><td>'+(r.area!=null ? r.area+'坪' : '—')+'</td><td>'+r.totalPrice+'萬</td></tr>');
+    });
+    $('intelTable').innerHTML = out.join('');
+  }
+
+  function loadIntelData(){
+    if(intelLoaded) return;
+    intelLoaded = true;
+    fetch(INTEL_URL).then(function(r){ return r.json(); }).then(function(d){
+      intelData = d;
+      renderIntelSummary(d);
+      populateIntelFilters(d);
+      renderIntelTable();
+    }).catch(function(){
+      $('intelWeekTitle').textContent = '內部成交（載入失敗，稍後再試）';
+      intelLoaded = false;
+    });
+  }
+
+  $('intelDistrictFilter').addEventListener('change', renderIntelTable);
+  $('intelTypeFilter').addEventListener('change', renderIntelTable);
   topNavButtons.forEach(function(btn){
     btn.addEventListener('click', function(){ setTop(btn.dataset.top); });
   });
