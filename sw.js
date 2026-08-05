@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yc-calc-v1';
+const CACHE_NAME = 'yc-calc-20260805';
 const CORE_FILES = [
   './',
   './index.html',
@@ -27,6 +27,20 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  // 每週會換的資料（內部成交）一律先問網路，拿不到才用快取。
+  // 不然快取優先會讓手機上永遠停在舊的那一週。
+  if (url.pathname.indexOf('/data/intel/') !== -1) {
+    event.respondWith(
+      fetch(event.request).then((resp) => {
+        if (resp && resp.status === 200) {
+          const copy = resp.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return resp;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request).then((resp) => {

@@ -998,7 +998,11 @@
 
   function ensureMarketFrame(){
     var f = $('marketFrame');
-    if(!f.src) f.src = 'https://gerla9711010-eng.github.io/kh-market/';
+    if(f.src) return;
+    // 同網域有看板就用同網域那份，沒有才回頭用 GitHub Pages
+    fetch(KH_BASES[0] + 'data/manifest.json').then(function(r){
+      f.src = r.ok ? KH_BASES[0] : KH_BASES[1];
+    }).catch(function(){ f.src = KH_BASES[1]; });
   }
 
   var currentMarketSub = 'reg';
@@ -1033,7 +1037,17 @@
   // ================================================================
   // 內部成交（bdinfo.py 每週二自動發布，讀 kh-market repo 底下的 intel JSON）
   // ================================================================
-  var INTEL_URL = 'https://gerla9711010-eng.github.io/kh-market/data/intel/latest.json';
+  // 兩個站放在同一個網域底下（/yc-calc 與 /kh-market），所以先試同網域那份；
+  // 讀不到才退回 GitHub Pages 那份（2026-08-05 加：GitHub 帳號停權時整站 404，
+  // 公開頁面不能只綁一家主機）。
+  var KH_BASES = [
+    location.origin + '/kh-market/',
+    'https://gerla9711010-eng.github.io/kh-market/'
+  ];
+  var INTEL_URLS = [
+    KH_BASES[0] + 'data/intel/latest.json',
+    KH_BASES[1] + 'data/intel/latest.json'
+  ];
   var intelData = null, intelLoaded = false;
 
   function renderIntelSummary(d){
@@ -1083,15 +1097,23 @@
   function loadIntelData(){
     if(intelLoaded) return;
     intelLoaded = true;
-    fetch(INTEL_URL).then(function(r){ return r.json(); }).then(function(d){
-      intelData = d;
-      renderIntelSummary(d);
-      populateIntelFilters(d);
-      renderIntelTable();
-    }).catch(function(){
-      $('intelWeekTitle').textContent = '內部成交（載入失敗，稍後再試）';
-      intelLoaded = false;
-    });
+    var tryAt = function(i){
+      if(i >= INTEL_URLS.length){
+        $('intelWeekTitle').textContent = '內部成交（載入失敗，稍後再試）';
+        intelLoaded = false;
+        return;
+      }
+      fetch(INTEL_URLS[i], {cache:'no-cache'}).then(function(r){
+        if(!r.ok) throw new Error(r.status);
+        return r.json();
+      }).then(function(d){
+        intelData = d;
+        renderIntelSummary(d);
+        populateIntelFilters(d);
+        renderIntelTable();
+      }).catch(function(){ tryAt(i + 1); });
+    };
+    tryAt(0);
   }
 
   $('intelDistrictFilter').addEventListener('change', renderIntelTable);
@@ -1227,12 +1249,28 @@
   // ================================================================
   // 屋主：開價建議（讀取 kh-market 實價登錄資料）
   // ================================================================
-  var KH_BASE = 'https://gerla9711010-eng.github.io/kh-market/';
+  // 看板同網域就用同網域那份（Cloudflare Pages），沒有才回頭找 GitHub Pages。
+  // 2026-08-05 加：GitHub 帳號停權時 github.io 整站 404，行情資料不能只綁一家。
+  var KH_BASE = KH_BASES[0];
   var khManifest = null, khManifestPromise = null;
+
+  function fetchKh(path){
+    return fetch(KH_BASES[0] + path).then(function(r){
+      if(!r.ok) throw new Error(r.status);
+      KH_BASE = KH_BASES[0];
+      return r;
+    }).catch(function(){
+      KH_BASE = KH_BASES[1];
+      return fetch(KH_BASES[1] + path).then(function(r){
+        if(!r.ok) throw new Error(r.status);
+        return r;
+      });
+    });
+  }
 
   function loadKhManifest(){
     if(khManifestPromise) return khManifestPromise;
-    khManifestPromise = fetch(KH_BASE + 'data/manifest.json').then(function(r){ return r.json(); }).then(function(m){
+    khManifestPromise = fetchKh('data/manifest.json').then(function(r){ return r.json(); }).then(function(m){
       khManifest = m;
       var districts = m.districts.slice().sort(function(a,b){ return a.district.localeCompare(b.district,'zh-Hant'); });
       $('pdDistrict').innerHTML = districts.map(function(d){ return '<option value="'+d.district+'">'+d.district+'</option>'; }).join('');
@@ -1273,7 +1311,7 @@
       var years = entry.years.slice().sort(function(a,b){ return b.year - a.year; }).slice(0, lookback);
       btn.textContent = '查詢中…';
       Promise.all(years.map(function(y){
-        return fetch(KH_BASE + 'data/' + y.file).then(function(r){ return r.json(); }).catch(function(){ return []; });
+        return fetchKh('data/' + y.file).then(function(r){ return r.json(); }).catch(function(){ return []; });
       })).then(function(chunks){
         var records = [].concat.apply([], chunks);
         var filtered = records.filter(function(r){
