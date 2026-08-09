@@ -598,10 +598,14 @@
           <div class="card">
             <h2>建議開價區間</h2>
             <div class="kpi-grid">
-              <div class="kpi"><div class="k-label">單價區間（萬/坪）</div><div class="k-val num" id="pdUpRange">—</div></div>
+              <div class="kpi"><div class="k-label">單價區間（萬/坪，含地）</div><div class="k-val num" id="pdUpRange">—</div></div>
               <div class="kpi accent"><div class="k-label">建議開價區間</div><div class="k-val num" id="pdPriceRange">—</div></div>
               <div class="kpi"><div class="k-label">單價中位數</div><div class="k-val num" id="pdUpMed">—</div></div>
               <div class="kpi"><div class="k-label">參考樣本數</div><div class="k-val num" id="pdCount">—</div></div>
+            </div>
+            <div class="kpi-grid" id="pdLandKpis" style="display:none; margin-top:10px;">
+              <div class="kpi"><div class="k-label">總價÷地坪 中位數（萬/坪）</div><div class="k-val num" id="pdLandUpMed">—</div></div>
+              <div class="kpi"><div class="k-label">地坪樣本數</div><div class="k-val num" id="pdLandCount">—</div></div>
             </div>
             <div class="cap-note" id="pdNote"></div>
           </div>
@@ -657,9 +661,16 @@
 
         <div class="card">
           <h2>負擔評估</h2>
-          <div>
-            <label for="gnIncome">借款人年所得（選填）</label>
-            <div class="unit-input"><input type="number" id="gnIncome" value="0" min="0" step="5"><span>萬/年</span></div>
+          <div class="stack">
+            <div>
+              <label for="gnIncome">借款人年所得（選填）</label>
+              <div class="unit-input"><input type="number" id="gnIncome" value="0" min="0" step="5"><span>萬/年</span></div>
+            </div>
+            <div>
+              <label for="gnOtherDebt">其他每月固定負債（選填，車貸/其他房貸/卡循等）</label>
+              <div class="unit-input"><input type="number" id="gnOtherDebt" value="0" min="0" step="1000"><span>元/月</span></div>
+              <div class="cap-note">銀行實際審核看的是收支比（DBR，所有負債月付÷月收入），不是只看這筆房貸。填了這欄，下面的比率會改成含其他負債的收支比，比較貼近銀行口徑。</div>
+            </div>
           </div>
         </div>
 
@@ -1422,15 +1433,26 @@
         $('pdUpMed').textContent = med.toFixed(1) + ' 萬/坪';
         $('pdCount').textContent = ups.length + ' 筆';
         $('pdPriceRange').textContent = area > 0 ? (Math.round(q1*area) + ' ~ ' + Math.round(q3*area) + ' 萬') : '請輸入坪數';
+
+        // 透天：單價／坪是建坪+土地一起除出來的，價值大部分在地，另外用「總價÷地坪」抓一個
+        // 概算地坪單價當比較基準（不是純土地價格，含建物，僅供同類案例互相比較）。
+        var landUps = filtered.map(function(r){ return (r.la && r.la>0) ? r.tp/r.la : null; }).filter(function(v){ return v!=null && isFinite(v) && v>0; });
+        if(type==='透天厝' && landUps.length>=3){
+          $('pdLandKpis').style.display = 'grid';
+          $('pdLandUpMed').textContent = median(landUps).toFixed(1) + ' 萬/坪';
+          $('pdLandCount').textContent = landUps.length + ' 筆';
+        } else {
+          $('pdLandKpis').style.display = 'none';
+        }
         var noteTail = type==='透天厝'
-          ? '透天單價／坪是用建坪＋土地一起除出來的，價值大部分在地坪，跟大樓不能直接比較，開價務必另外請地政士抓地坪換算，不要只乘建坪。'
+          ? '透天真正的價值大部分在地坪，跟大樓不能直接比較，開價務必另外請地政士核實地坪、並參考下方「總價÷地坪」而非只乘建坪單價。'
           : '僅供參考，實際開價仍需依樓層/景觀/裝潢調整。';
         $('pdNote').textContent = district + '・' + (type==='all'?'全部類型':type) + '・近' + lookback + '年' + (ageBand?'・屋齡'+$('pdAge').selectedOptions[0].textContent:'') + '，已排除關係人交易樣本。' + noteTail;
 
         var recent = filtered.slice().sort(function(a,b){ return (b.q||'').localeCompare(a.q||''); }).slice(0,8);
-        var rows = ['<tr><th>路段</th><th>類型</th><th>總價</th><th>坪數</th><th>單價</th><th>屋齡</th><th>季別</th></tr>'];
+        var rows = ['<tr><th>路段</th><th>類型</th><th>總價</th><th>建坪</th><th>地坪</th><th>單價</th><th>屋齡</th><th>季別</th></tr>'];
         recent.forEach(function(r){
-          rows.push('<tr><td>'+r.rd+'</td><td>'+r.ty+'</td><td>'+r.tp.toFixed(0)+'萬</td><td>'+r.area.toFixed(1)+'</td><td>'+r.up.toFixed(1)+'</td><td>'+(r.age!=null?(r.age<0?'預售':r.age+'年'):'—')+'</td><td>'+r.q+'</td></tr>');
+          rows.push('<tr><td>'+r.rd+'</td><td>'+r.ty+'</td><td>'+r.tp.toFixed(0)+'萬</td><td>'+r.area.toFixed(1)+'</td><td>'+(r.la!=null?r.la.toFixed(1):'—')+'</td><td>'+r.up.toFixed(1)+'</td><td>'+(r.age!=null?(r.age<0?'預售':r.age+'年'):'—')+'</td><td>'+r.q+'</td></tr>');
         });
         $('pdTable').innerHTML = rows.join('');
       });
@@ -1447,6 +1469,7 @@
     var term = parseInt($('gnTerm').value,10)||30;
     var grace = parseInt($('gnGrace').value,10)||0;
     var income = parseFloat($('gnIncome').value)||0;
+    var otherDebt = parseFloat($('gnOtherDebt').value)||0;
 
     if(price <= 0){
       $('gnLtvShow').value = '';
@@ -1493,20 +1516,22 @@
     $('gnTotal').textContent = wanFmt(loanD+totalInterest);
 
     var burdenEl = $('gnBurden');
-    var maxPay = Math.max(gracePay, repayPay);
+    var maxPay = Math.max(gracePay, repayPay) + otherDebt;
     if(income > 0){
       var mIncome = income*10000/12;
       var ratio = maxPay/mIncome*100;
       var cls = ratio<=33.4 ? 'b-good' : (ratio<=50 ? 'b-warn' : 'b-crit');
       var word = ratio<=33.4 ? '負擔輕鬆' : (ratio<=50 ? '偏高，建議留意' : '吃緊，建議調整條件');
+      var label = otherDebt > 0 ? '收支比' : '房貸負擔率';
+      var debtNote = otherDebt > 0 ? '（房貸月付＋其他負債 '+money(otherDebt)+'）' : '';
       burdenEl.className = 'burden ' + cls;
-      burdenEl.innerHTML = '<div class="bd-l">房貸負擔率（'+word+'）<small>以最高月付 '+money(maxPay)+' ÷ 月收入 '+money(mIncome)+' 計</small></div><div class="bd-v num">'+ratio.toFixed(0)+'%</div>';
+      burdenEl.innerHTML = '<div class="bd-l">'+label+'（'+word+'）<small>以最高月付'+debtNote+' '+money(maxPay)+' ÷ 月收入 '+money(mIncome)+' 計</small></div><div class="bd-v num">'+ratio.toFixed(0)+'%</div>';
     } else {
       burdenEl.className = 'burden';
       burdenEl.innerHTML = '<div class="bd-l">房貸負擔率<small>填年所得後自動顯示</small></div><div class="bd-v" style="color:var(--muted)">—</div>';
     }
   }
-  ['gnPrice','gnDown','gnRate','gnIncome'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
+  ['gnPrice','gnDown','gnRate','gnIncome','gnOtherDebt'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
   ['gnTerm','gnGrace'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
   $('gnBtn80').addEventListener('click', function(){
     var price = parseFloat($('gnPrice').value)||0;
