@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yc-calc-20260805';
+const CACHE_NAME = 'yc-calc-20261020';
 const CORE_FILES = [
   './',
   './index.html',

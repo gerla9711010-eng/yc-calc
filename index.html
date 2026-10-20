@@ -508,12 +508,12 @@
                 </div>
               </div>
             </div>
-            <div class="cap-note">依土地稅法第33條（一般用地累進稅率＋長期持有減徵）、第34條（自用住宅用地稅率10%，須符合都市土地3公畝／非都市7公畝內、本人或配偶及直系親屬設籍、無出租營業使用等六項條件，原則一生一次）試算。正式金額以地政機關核發之土地增值稅核定通知書為準。</div>
+            <div class="cap-note">依土地稅法第33條（一般用地累進稅率＋長期持有減徵）、第34條（自用住宅用地稅率10%，須符合都市土地3公畝／非都市7公畝內、本人或配偶及直系親屬設籍、無出租營業使用等條件，一生一次；用過後符合「一生一屋」條件（都市1.5公畝內、全家僅此一屋、設籍滿6年、前5年無出租營業）可再適用）試算。正式金額以地政機關核發之土地增值稅核定通知書為準。</div>
           </div>
         </div>
 
         <div class="card">
-          <h2>房地合一稅（106/1/1後取得適用）</h2>
+          <h2>房地合一稅（105/1/1後取得適用）</h2>
           <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
             <input type="checkbox" id="onHtghEnable" style="width:18px;height:18px;">
             這筆需要試算房地合一稅
@@ -527,11 +527,15 @@
               <label for="onHtghYears">持有年數</label>
               <div class="unit-input"><input type="number" id="onHtghYears" value="1" min="0" step="0.5"><span>年</span></div>
             </div>
+            <div>
+              <label for="onHtghLand">土地漲價總數額（已課土增稅的部分可扣除）</label>
+              <div class="unit-input"><input type="number" id="onHtghLand" value="0" min="0" step="1"><span>萬元</span></div>
+            </div>
             <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
               <input type="checkbox" id="onHtghSelf" style="width:18px;height:18px;">
               符合自住優惠（持有滿6年+設籍+無出租營業）
             </label>
-            <div class="cap-note">依所得稅法第14條之4房地合一稅2.0稅率（個人）：持有2年以內45%／逾2年至5年35%／逾5年至10年20%／逾10年15%；自住優惠（設籍持有連續滿6年等六項條件）：課稅所得400萬以下免稅、超過部分按10%課徵。僅供概算，正式申報以國稅局試算為準。</div>
+            <div class="cap-note">依所得稅法第14條之4房地合一稅2.0稅率（個人）：持有2年以內45%／逾2年至5年35%／逾5年至10年20%／逾10年15%；自住優惠（設籍持有連續滿6年等六項條件）：課稅所得400萬以下免稅、超過部分按10%課徵。課稅所得＝成交價－取得成本－仲介費（移轉費用，本頁自動扣）－土地漲價總數額。僅供概算，正式申報以國稅局試算為準。</div>
           </div>
         </div>
 
@@ -632,6 +636,31 @@
               <label for="gnPrice">房屋總價</label>
               <div class="unit-input"><input type="number" id="gnPrice" min="0" step="10" placeholder="輸入房屋總價"><span>萬元</span></div>
             </div>
+            <div class="row">
+              <div>
+                <label for="gnHold">買方名下現況</label>
+                <select id="gnHold">
+                  <option value="none">名下無房屋</option>
+                  <option value="house">有房屋、無房貸（第1戶）</option>
+                  <option value="loan1">已有1戶房貸（第2戶）</option>
+                  <option value="loan2">已有2戶以上房貸（第3戶↑）</option>
+                  <option value="corp">公司法人</option>
+                </select>
+              </div>
+              <div>
+                <label for="gnCity">房屋所在地</label>
+                <select id="gnCity">
+                  <option value="other">北市、新北以外</option>
+                  <option value="newtaipei">新北市</option>
+                  <option value="taipei">臺北市</option>
+                </select>
+              </div>
+            </div>
+            <label id="gnSwapWrap" style="display:none; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
+              <input type="checkbox" id="gnSwap" style="width:18px;height:18px;">
+              換屋：切結撥款後 18 個月內賣掉舊屋
+            </label>
+            <div class="cap-note" id="gnRuleNote" style="margin-top:0"></div>
             <div class="row">
               <div>
                 <label for="gnDown">自備款 <button type="button" class="mini-btn" id="gnBtn80">一鍵貸8成</button></label>
@@ -872,7 +901,7 @@
         <section class="panel" data-panel="legacy">
           <div class="card">
             <h2>青安 1.0 / 2.0 舊客戶試算</h2>
-            <p class="lead-note">3.0 的「補貼遞減」溯及既往：舊戶只要利息補貼滿 3 年，<b>2026/8/1 起</b>補貼開始逐年遞減、月繳會變多。輸入舊客戶的貸款資料，算出他之後要多繳多少。</p>
+            <p class="lead-note">3.0 的「補貼遞減」溯及既往：112/8/1 後撥貸的舊戶，補貼滿 3 年就逐年遞減；112/7/31 以前撥貸的，<b>2026/8/1 起</b>直接開始遞減。月繳都會變多。輸入舊客戶的貸款資料，算出他之後要多繳多少。</p>
             <div class="stack">
               <div class="row">
                 <div>
@@ -887,7 +916,7 @@
               <div class="row">
                 <div>
                   <label for="legYear">撥款年份（民國）</label>
-                  <div class="unit-input"><input type="number" id="legYear" value="113" min="112" max="115"><span>年</span></div>
+                  <div class="unit-input"><input type="number" id="legYear" value="113" min="99" max="115"><span>年</span></div>
                 </div>
                 <div>
                   <label for="legMonth">撥款月份</label>
@@ -1220,7 +1249,8 @@
       htghEnabled: $('onHtghEnable').checked,
       htghCost: parseFloat($('onHtghCost').value)||0,
       htghYears: parseFloat($('onHtghYears').value)||0,
-      htghSelf: $('onHtghSelf').checked
+      htghSelf: $('onHtghSelf').checked,
+      htghLand: parseFloat($('onHtghLand').value)||0
     };
   }
 
@@ -1231,7 +1261,8 @@
     var agentFee = price * ctx.agentPct / 100;
     var htghTax = 0;
     if(ctx.htghEnabled){
-      var gain = Math.max(0, price - ctx.htghCost);
+      // 所得稅法14-4：仲介費屬移轉費用、已課土增稅的土地漲價總數額都可扣
+      var gain = Math.max(0, price - ctx.htghCost - agentFee - ctx.htghLand);
       if(ctx.htghSelf && ctx.htghYears >= 6){
         htghTax = Math.max(0, gain - 400) * 10 / 100;
       } else {
@@ -1332,7 +1363,7 @@
     $('onHtghWrap').style.display = this.checked ? 'block' : 'none';
     onCompute();
   });
-  ['onPrice','onLoanBal','onPrepayPct','onAgentPct','onPaperwork','onLandManual','onLandA','onLandB','onHtghCost','onHtghYears'].forEach(function(id){
+  ['onPrice','onLoanBal','onPrepayPct','onAgentPct','onPaperwork','onLandManual','onLandA','onLandB','onHtghCost','onHtghYears','onHtghLand'].forEach(function(id){
     $(id).addEventListener('input', onCompute);
   });
   $('onHtghSelf').addEventListener('change', onCompute);
@@ -1462,16 +1493,45 @@
   // ================================================================
   // 買方：一般試算
   // ================================================================
+  // 央行「不動產抵押貸款業務規定」115/9/18 版：cap＝成數上限%（null＝央行不限，銀行自訂）、noGrace＝不得有寬限期。
+  // 戶數看聯徵的房貸筆數；名下有房但房貸已繳清＝第1戶（繼承取得的不算）。換屋切結不適用高價住宅與法人。
+  var GN_HIGH_PRICE = { taipei:7000, newtaipei:6000, other:4000 };
+  var GN_CITY_LABEL = { taipei:'臺北市', newtaipei:'新北市', other:'北市新北以外' };
+  function gnRule(hold, city, price, swap){
+    var hp = GN_HIGH_PRICE[city];
+    if(hold === 'corp') return { cap:30, noGrace:true, swapOk:false, text:'公司法人購置住宅：最高 3 成、不得有寬限期。' };
+    if(price >= hp)
+      return { cap:30, noGrace:true, swapOk:false, text:'高價住宅（'+GN_CITY_LABEL[city]+' '+hp.toLocaleString()+' 萬以上）：最高 3 成、不得有寬限期，換屋切結也不適用。' };
+    if(hold === 'loan2') return { cap:30, noGrace:true, swapOk:false, text:'第3戶以上：最高 3 成、不得有寬限期。' };
+    if(hold === 'loan1') return swap
+      ? { cap:null, noGrace:false, swapOk:true, text:'第2戶換屋切結：撥款後 18 個月內賣舊屋、清償並塗銷，就不受 7 成與寬限期限制；逾期沒賣，銀行會收回成數差額並追溯罰息。' }
+      : { cap:70, noGrace:true, swapOk:true, text:'第2戶：最高 7 成、不得有寬限期（115/9/18 起，全國適用）。' };
+    if(hold === 'house') return swap
+      ? { cap:null, noGrace:false, swapOk:true, text:'第1戶換屋切結：撥款後 18 個月內賣舊屋並過戶，可以有寬限期；逾期沒賣會取消寬限期並追溯罰息。' }
+      : { cap:null, noGrace:true, swapOk:true, text:'名下有房（含房貸已繳清）：央行不限成數，但不得有寬限期。繼承取得的房屋不算。' };
+    return { cap:null, noGrace:false, swapOk:false, text:'名下無房：央行不限成數與寬限期，一般銀行約 8 成，依鑑價與個人條件。青安 3.0 不受第1、2戶限制。' };
+  }
+
   function gnCompute(){
     var price = parseFloat($('gnPrice').value)||0;
     var down = parseFloat($('gnDown').value)||0;
     var rate = parseFloat($('gnRate').value)||0;
     var term = parseInt($('gnTerm').value,10)||30;
-    var grace = parseInt($('gnGrace').value,10)||0;
     var income = parseFloat($('gnIncome').value)||0;
     var otherDebt = parseFloat($('gnOtherDebt').value)||0;
 
+    var hold = $('gnHold').value;
+    var rule = gnRule(hold, $('gnCity').value, price, $('gnSwap').checked);
+    $('gnSwapWrap').style.display = rule.swapOk ? 'flex' : 'none';
+    var maxLtv = rule.cap === null ? 80 : rule.cap;
+    $('gnBtn80').textContent = '一鍵貸' + (maxLtv/10) + '成';
+    $('gnGrace').disabled = rule.noGrace;
+    if(rule.noGrace) $('gnGrace').value = 0;
+    var grace = parseInt($('gnGrace').value,10)||0;
+    var ruleHtml = rule.text;
+
     if(price <= 0){
+      $('gnRuleNote').innerHTML = ruleHtml;
       $('gnLtvShow').value = '';
       $('gnTermVal').textContent = term + ' 年';
       $('gnGraceVal').textContent = grace + ' 年';
@@ -1485,6 +1545,10 @@
     var loanD = Math.max(0, priceD-downD);
     var ltv = priceD>0 ? loanD/priceD*100 : 0;
     $('gnLtvShow').value = ltv.toFixed(1);
+    if(rule.cap !== null && ltv > rule.cap + 0.05){
+      ruleHtml += '<br><b style="color:var(--crit)">⚠ 目前 '+ltv.toFixed(1)+'% 超過上限 '+rule.cap+'%：最多貸 '+wanFmt(priceD*rule.cap/100)+'，自備至少 '+wanFmt(priceD*(1-rule.cap/100))+'。</b>';
+    }
+    $('gnRuleNote').innerHTML = ruleHtml;
     $('gnTermVal').textContent = term + ' 年';
     $('gnGraceVal').textContent = grace + ' 年';
 
@@ -1533,9 +1597,12 @@
   }
   ['gnPrice','gnDown','gnRate','gnIncome','gnOtherDebt'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
   ['gnTerm','gnGrace'].forEach(function(id){ $(id).addEventListener('input', gnCompute); });
+  ['gnHold','gnCity','gnSwap'].forEach(function(id){ $(id).addEventListener('change', gnCompute); });
   $('gnBtn80').addEventListener('click', function(){
     var price = parseFloat($('gnPrice').value)||0;
-    $('gnDown').value = Math.round(price*0.2*10)/10;
+    var rule = gnRule($('gnHold').value, $('gnCity').value, price, $('gnSwap').checked);
+    var maxLtv = rule.cap === null ? 80 : rule.cap;
+    $('gnDown').value = Math.round(price*(100-maxLtv)/100*10)/10;
     gnCompute();
   });
   gnCompute();
@@ -2016,18 +2083,32 @@
     }
     var balanceAtCutover = bal;
 
+    // 國庫署貸款原則(青安3.0)：112/8/1 起撥貸＝依撥貸滿 3 年後逐年遞減；
+    // 112/7/31 以前撥貸＝不看撥貸年數，115/8、116/8、117/8 起各升半碼的一半(0.125%)，118/8 起回復原利率。
+    var isOld = startAbs < 2023*12 + 7;
     var rows = [], payAfterFirst = null;
     var mi = monthsElapsed;
     while(mi < totalMonths){
       var loanYear = Math.floor(mi/12)+1;
       var inG = loanYear <= graceY;
-      var rate = stageRate(loanYear);
+      var rate, label, monthsThisYear;
+      if(isOld){
+        var blk = Math.floor((mi - monthsElapsed)/12);
+        rate = BASE_RATE + Math.min(0.5, (blk+1)*0.125);
+        var absM = startAbs + mi;
+        label = (Math.floor(absM/12)-1911)+'/'+(absM%12+1)+' 起';
+        monthsThisYear = Math.min(12 - ((mi - monthsElapsed)%12), totalMonths - mi);
+        if(inG) monthsThisYear = Math.min(monthsThisYear, graceY*12 - mi);
+      } else {
+        rate = stageRate(loanYear);
+        label = '第'+loanYear+'年';
+        monthsThisYear = Math.min(12 - (mi%12), totalMonths - mi);
+      }
       var mR = rate/1200;
       var remM = totalMonths - mi;
       var pay = inG ? bal*mR : (mR>0 ? bal*mR/(1-Math.pow(1+mR,-remM)) : bal/remM);
-      rows.push({ loanYear:loanYear, rate:rate, monthlyPayment:pay, phase: inG?'grace':'repay' });
+      rows.push({ loanYear:loanYear, label:label, rate:rate, monthlyPayment:pay, phase: inG?'grace':'repay' });
       if(payAfterFirst===null) payAfterFirst = pay;
-      var monthsThisYear = Math.min(12 - (mi%12), totalMonths - mi);
       for(var k=0;k<monthsThisYear;k++){
         if(!inG){
           var it = bal*mR, pr = pay - it;
@@ -2041,7 +2122,7 @@
     var currentLoanYear = Math.floor(monthsElapsed/12)+1;
 
     return {
-      paidOff:paidOff, payBefore:payBefore, payAfter:(payAfterFirst||0),
+      paidOff:paidOff, isOld:isOld, payBefore:payBefore, payAfter:(payAfterFirst||0),
       currentLoanYear:currentLoanYear, balanceAtCutover:balanceAtCutover, rows:rows
     };
   }
@@ -2060,21 +2141,23 @@
     hero.innerHTML =
       '<div class="lh-box"><div class="lh-l">8/1 前月繳</div><div class="lh-v num">'+money(r.payBefore)+'</div><div class="lh-r">補貼利率 1.775%</div></div>' +
       '<div class="lh-arrow">→</div>' +
-      '<div class="lh-box after"><div class="lh-l">8/1 起月繳</div><div class="lh-v num">'+money(r.payAfter)+'</div><div class="lh-r">'+stageRate(r.currentLoanYear).toFixed(3)+'%</div></div>';
+      '<div class="lh-box after"><div class="lh-l">8/1 起月繳</div><div class="lh-v num">'+money(r.payAfter)+'</div><div class="lh-r">'+(r.rows.length ? r.rows[0].rate : stageRate(r.currentLoanYear)).toFixed(3)+'%</div></div>';
 
     var msg;
-    if(r.currentLoanYear <= 3){
+    if(r.isOld){
+      msg = '此客戶為 <b>112/7/31 以前撥貸</b>，補貼依年度遞減（不看撥貸幾年）：115/8 起 1.900%、116/8 起 2.025%、117/8 起 2.150%、118/8 起回復原利率約 2.275%。8/1 起月繳增加 <b>'+money(delta)+'</b>／月。<br><small>110 年以前撥貸或選二段式／混合式者，原利率可能不同，以銀行通知為準。</small>';
+    } else if(r.currentLoanYear <= 3){
       msg = '此客戶補貼<b>尚未滿 3 年</b>，8/1 暫時不受影響；等補貼滿 3 年後（第 4 年起）才會開始逐年遞減。下表為未來走勢。';
     } else {
       msg = '此客戶補貼<b>已滿 3 年</b>，8/1 起月繳增加 <b>'+money(delta)+'</b>／月（約 '+money(delta*12)+'／年），並會逐年再升，直到補貼歸零（第 7 年、利率 2.275%）。';
     }
     detail.innerHTML = '<div style="font-size:13.5px;font-weight:600;line-height:1.6;color:var(--ink-soft)">'+msg+'</div>';
 
-    var head = '<tr><th>貸款第N年</th><th>利率</th><th>月繳</th><th>與8/1前差額</th></tr>';
+    var head = '<tr><th>'+(r.isOld ? '期間' : '貸款第N年')+'</th><th>利率</th><th>月繳</th><th>與8/1前差額</th></tr>';
     var body = r.rows.map(function(row){
       var d = row.monthlyPayment - r.payBefore;
       var dTxt = Math.abs(d) < 1 ? '—' : (d>0?'+':'')+money(d);
-      return '<tr><td>第'+row.loanYear+'年'+(row.phase==='grace'?' <span style="color:var(--muted);font-size:9.5px">寬限</span>':'')+'</td>' +
+      return '<tr><td>'+row.label+(row.phase==='grace'?' <span style="color:var(--muted);font-size:9.5px">寬限</span>':'')+'</td>' +
         '<td>'+row.rate.toFixed(3)+'%</td><td>'+money(row.monthlyPayment)+'</td>' +
         '<td style="color:'+(d>1?'var(--crit)':'var(--muted)')+'">'+dTxt+'</td></tr>';
     }).join('');
