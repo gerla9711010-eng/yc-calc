@@ -625,7 +625,7 @@
     <section class="topview" data-top="buyer" id="buyerView" style="display:none">
       <div class="seg subseg" id="buyerSubSeg">
         <button data-v="general" class="active">一般試算</button>
-        <button data-v="qingan3">新青安3.0</button>
+        <button data-v="qingan3">青安3.0</button>
       </div>
 
       <div class="subpanel active" data-sub="general">
@@ -2007,7 +2007,7 @@
     var allPass = checks.every(function(c){ return c.pass; });
     var summary = $('eligSummary');
     summary.className = 'elig-summary ' + (allPass ? 'all-pass' : 'some-fail');
-    summary.textContent = allPass ? '✓ 符合新青安 3.0 申貸資格' : '⚠ 有項目未通過，請與客戶確認';
+    summary.textContent = allPass ? '✓ 符合青安 3.0 申貸資格' : '⚠ 有項目未通過，請與客戶確認';
   }
 
   function stressRow(label, val, delta, cls){
@@ -2206,7 +2206,7 @@
 
     ctx.fillStyle = '#10201A'; ctx.fillRect(0,0,W,headerH);
     ctx.fillStyle = '#D9AE5C'; ctx.font = '700 15px '+MONO;
-    ctx.fillText('新青安 3.0 貸款試算', pad, 46);
+    ctx.fillText('青安 3.0 貸款試算', pad, 46);
     ctx.fillStyle = '#F6F3E8'; ctx.font = '800 30px '+FONT;
     ctx.fillText('月繳與利息一覽', pad, 86);
     var d = new Date();
